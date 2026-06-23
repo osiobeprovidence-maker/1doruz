@@ -2,9 +2,17 @@ import { v } from "convex/values";
 import { internalAction } from "./_generated/server";
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY!);
-
 const FROM_EMAIL = "1DORUZ Records <noreply@1doruz.com>";
+
+function getResend() {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    throw new Error(
+      "RESEND_API_KEY is not configured. Set it via `npx convex env set RESEND_API_KEY <key>`."
+    );
+  }
+  return new Resend(apiKey);
+}
 
 export const sendVerificationEmail = internalAction({
   args: {
@@ -15,6 +23,7 @@ export const sendVerificationEmail = internalAction({
     const { email, token } = args;
     const verifyUrl = `${process.env.SITE_URL}/verify?token=${token}`;
 
+    const resend = getResend();
     await resend.emails.send({
       from: FROM_EMAIL,
       to: email,
@@ -67,6 +76,7 @@ export const sendMagicLink = internalAction({
     const { email, token } = args;
     const loginUrl = `${process.env.SITE_URL}/login?token=${token}`;
 
+    const resend = getResend();
     await resend.emails.send({
       from: FROM_EMAIL,
       to: email,
@@ -119,6 +129,7 @@ export const sendContactNotification = internalAction({
   handler: async (_, args) => {
     const { name, email, message } = args;
 
+    const resend = getResend();
     await resend.emails.send({
       from: FROM_EMAIL,
       to: "info@1doruz.com",
@@ -160,6 +171,7 @@ export const sendDemoNotification = internalAction({
   handler: async (_, args) => {
     const { artistName, email, bio } = args;
 
+    const resend = getResend();
     await resend.emails.send({
       from: FROM_EMAIL,
       to: "ar@1doruz.com",
