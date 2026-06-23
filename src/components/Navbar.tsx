@@ -89,8 +89,16 @@ export default function Navbar() {
             {logoUrl ? (
               <img src={logoUrl} alt={brandName} className="h-6 object-contain" />
             ) : (
-              <span className="font-serif text-[16px] font-bold tracking-[0.1em] text-white whitespace-nowrap uppercase">
-                {brandName} <span className="font-light" style={accentStyle}>{tagLine}</span>
+              <span className="flex items-center gap-2">
+                <div
+                  className="w-7 h-7 flex-shrink-0 flex items-center justify-center font-bold text-black text-sm font-sans"
+                  style={{ backgroundColor: primaryColor }}
+                >
+                  {brandName.charAt(0)}
+                </div>
+                <span className="font-serif text-[14px] font-bold tracking-[0.1em] text-white whitespace-nowrap uppercase">
+                  {brandName} <span className="font-light" style={accentStyle}>{tagLine}</span>
+                </span>
               </span>
             )}
           </Link>

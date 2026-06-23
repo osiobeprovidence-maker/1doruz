@@ -46,7 +46,7 @@ export default function Releases() {
                  />
                  <div className="absolute inset-0 flex flex-col items-center justify-center p-6 bg-zinc-950/80 opacity-0 transition-opacity group-hover:opacity-100 backdrop-blur-md">
                    <div className="flex items-center gap-4 mb-8">
-                     <button className="rounded-full bg-gold-500 p-4 text-zinc-950 hover:bg-white transition-all shadow-xl">
+                     <button className="rounded-full bg-gold-500 p-4 text-zinc-950 hover:bg-[#fff] transition-all shadow-xl">
                        <Play fill="currentColor" size={20} />
                      </button>
                    </div>

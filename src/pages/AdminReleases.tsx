@@ -18,7 +18,7 @@ export default function AdminReleases() {
             <p className="text-zinc-500 text-sm mt-1 uppercase tracking-widest font-mono italic">Releases, EPs, and Singles</p>
           </div>
           <div className="flex gap-4">
-             <Link to="/admin/releases/new" className="w-full md:w-auto bg-gold-500 text-black px-8 py-4 md:py-3 text-[10px] font-bold uppercase tracking-widest hover:bg-white transition-colors flex items-center justify-center gap-2 min-h-[44px] shadow-lg shadow-gold-500/10">
+             <Link to="/admin/releases/new" className="w-full md:w-auto bg-gold-500 text-black px-8 py-4 md:py-3 text-[10px] font-bold uppercase tracking-widest hover:bg-[#fff] transition-colors flex items-center justify-center gap-2 min-h-[44px] shadow-lg shadow-gold-500/10">
                <Plus size={16} /> New Release
              </Link>
           </div>

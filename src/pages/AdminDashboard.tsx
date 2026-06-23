@@ -37,7 +37,7 @@ export default function AdminDashboard() {
               <p className="text-zinc-500 text-sm mt-1 uppercase tracking-widest font-mono">Real-time performance & management</p>
             </div>
             <div className="flex gap-4">
-              <Link to="/admin/assets/new" className="flex items-center justify-center gap-2 bg-white text-black w-full md:w-auto px-8 py-4 md:py-3 text-[10px] font-bold uppercase tracking-widest hover:bg-gold-500 transition-colors min-h-[44px]">
+              <Link to="/admin/assets/new" className="flex items-center justify-center gap-2 bg-[#fff] text-black w-full md:w-auto px-8 py-4 md:py-3 text-[10px] font-bold uppercase tracking-widest hover:bg-gold-500 transition-colors min-h-[44px]">
                 <Plus size={16} /> New Asset
               </Link>
             </div>
@@ -149,7 +149,7 @@ export default function AdminDashboard() {
                     </div>
                     <div className="flex flex-col sm:flex-row gap-3">
                       <button className="flex-1 bg-zinc-900 text-white text-[10px] font-bold uppercase tracking-widest py-3 hover:bg-zinc-800 transition-colors border border-zinc-800 min-h-[44px]">Listen</button>
-                      <button className="flex-1 bg-gold-500 text-black text-[10px] font-bold uppercase tracking-widest py-3 hover:bg-white transition-colors min-h-[44px]">Shortlist</button>
+                      <button className="flex-1 bg-gold-500 text-black text-[10px] font-bold uppercase tracking-widest py-3 hover:bg-[#fff] transition-colors min-h-[44px]">Shortlist</button>
                     </div>
                   </div>
                 ))}

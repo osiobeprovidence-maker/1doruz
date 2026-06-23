@@ -174,7 +174,7 @@ export default function Home() {
             </p>
             <Link 
               to="/submit-demo" 
-              className="luxury-button inline-block bg-white text-zinc-950 px-16 py-5 font-bold uppercase tracking-[0.3em] text-xs hover:bg-gold-500 transition-all duration-500 shadow-2xl"
+              className="luxury-button inline-block bg-[#fff] text-zinc-950 px-16 py-5 font-bold uppercase tracking-[0.3em] text-xs hover:bg-gold-500 transition-all duration-500 shadow-2xl"
             >
               Submit Your Demo
             </Link>

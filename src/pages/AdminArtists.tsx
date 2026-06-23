@@ -25,7 +25,7 @@ export default function AdminArtists() {
                 className="w-full bg-zinc-900 border border-zinc-800 pl-11 pr-4 py-4 md:py-3 text-sm focus:border-gold-500 focus:outline-none transition-colors min-h-[44px]"
               />
             </div>
-            <Link to="/admin/artists/new" className="w-full md:w-auto bg-gold-500 text-black px-8 py-4 md:py-3 text-[10px] font-bold uppercase tracking-widest hover:bg-white transition-colors flex items-center justify-center gap-2 min-h-[44px] shadow-lg shadow-gold-500/10">
+            <Link to="/admin/artists/new" className="w-full md:w-auto bg-gold-500 text-black px-8 py-4 md:py-3 text-[10px] font-bold uppercase tracking-widest hover:bg-[#fff] transition-colors flex items-center justify-center gap-2 min-h-[44px] shadow-lg shadow-gold-500/10">
               <Plus size={16} /> Add Artist
             </Link>
           </div>

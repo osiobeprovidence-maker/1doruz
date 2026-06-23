@@ -56,7 +56,7 @@ export default function AdminDemos() {
 
                 <div className="flex items-center gap-3 w-full md:w-auto pt-6 md:pt-0 border-t border-zinc-900 md:border-none">
                   <button className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-4 md:py-2.5 bg-zinc-900 text-[10px] font-bold uppercase tracking-widest text-zinc-400 hover:text-white transition-colors border border-zinc-800 min-h-[44px]">Listen</button>
-                  <button className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-4 md:py-2.5 bg-gold-500 text-black text-[10px] font-bold uppercase tracking-widest hover:bg-white transition-colors min-h-[44px]">Recruit</button>
+                  <button className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-4 md:py-2.5 bg-gold-500 text-black text-[10px] font-bold uppercase tracking-widest hover:bg-[#fff] transition-colors min-h-[44px]">Recruit</button>
                   <button className="p-3 text-zinc-700 hover:text-red-500 transition-colors active:scale-95 touch-manipulation">
                     <Trash2 size={18} />
                   </button>
@@ -84,7 +84,7 @@ export default function AdminDemos() {
                      <span className="text-white">{(demos ?? []).filter(d => d.status === 'pending').length}</span>
                    </div>
                    <div className="w-full bg-zinc-900 h-1 rounded-full overflow-hidden">
-                     <div className="bg-white h-full" style={{ width: `${(demos ?? []).filter(d => d.status === 'pending').length > 0 ? 100 : 0}%` }} />
+                     <div className="bg-[#fff] h-full" style={{ width: `${(demos ?? []).filter(d => d.status === 'pending').length > 0 ? 100 : 0}%` }} />
                    </div>
                  </div>
                </div>

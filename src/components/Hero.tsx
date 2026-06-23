@@ -24,13 +24,13 @@ export default function Hero() {
             <div className="flex flex-wrap gap-6">
               <Link
                 to="/releases"
-                className="luxury-button bg-gold-500 text-black px-12 py-5 font-bold uppercase tracking-[0.2em] text-[10px] hover:bg-white transition-all duration-500 shadow-[0_0_20px_rgba(197,160,89,0.2)] hover:shadow-[0_0_30px_rgba(255,255,255,0.2)]"
+                className="luxury-button bg-gold-500 text-black px-12 py-5 font-bold uppercase tracking-[0.2em] text-[10px] hover:bg-[#fff] transition-all duration-500 shadow-[0_0_20px_rgba(197,160,89,0.2)] hover:shadow-[0_0_30px_rgba(255,255,255,0.2)]"
               >
                 Listen Latest
               </Link>
               <Link
                 to="/submit-demo"
-                className="luxury-button border border-white/20 text-white px-12 py-5 font-bold uppercase tracking-[0.2em] text-[10px] hover:bg-white hover:text-black transition-all duration-500"
+                className="luxury-button border border-white/20 text-white px-12 py-5 font-bold uppercase tracking-[0.2em] text-[10px] hover:bg-[#fff] hover:text-black transition-all duration-500"
               >
                 Submit Demo
               </Link>

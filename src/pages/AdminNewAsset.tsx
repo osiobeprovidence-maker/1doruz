@@ -106,7 +106,7 @@ export default function AdminNewAsset() {
               disabled={isSaving}
               className={cn(
                 "luxury-button px-12 py-4 flex items-center justify-center gap-3 font-bold transition-all duration-500 min-w-[220px]",
-                saveSuccess ? "bg-green-500 text-black border-green-500" : "bg-white text-black border-white",
+                saveSuccess ? "bg-green-500 text-black border-green-500" : "bg-[#fff] text-black border-[#fff]",
                 isSaving && "opacity-70 cursor-not-allowed"
               )}
              >

@@ -126,7 +126,7 @@ export default function AdminAddArtist() {
                  <button 
                   type="button"
                   onClick={addGenre}
-                  className="bg-white text-black px-8 py-4 sm:py-0 font-bold text-[10px] uppercase tracking-widest hover:bg-gold-500 transition-colors"
+                  className="bg-[#fff] text-black px-8 py-4 sm:py-0 font-bold text-[10px] uppercase tracking-widest hover:bg-gold-500 transition-colors"
                  >
                    Add Tag
                  </button>

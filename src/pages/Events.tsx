@@ -50,7 +50,7 @@ export default function Events() {
                <div className="flex justify-center lg:justify-end">
                  <a 
                    href={event.ticketLink} 
-                   className="luxury-button w-full sm:w-auto px-10 py-4 bg-white text-zinc-950 font-bold uppercase tracking-[0.2em] text-[10px] hover:bg-gold-500 hover:tracking-[0.3em] transition-all duration-500 flex items-center justify-center gap-3 group/ticket"
+                   className="luxury-button w-full sm:w-auto px-10 py-4 bg-[#fff] text-zinc-950 font-bold uppercase tracking-[0.2em] text-[10px] hover:bg-gold-500 hover:tracking-[0.3em] transition-all duration-500 flex items-center justify-center gap-3 group/ticket"
                  >
                    Get Tickets <Ticket size={14} className="text-zinc-400 group-hover/ticket:text-zinc-950" />
                  </a>

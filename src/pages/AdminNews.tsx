@@ -15,7 +15,7 @@ export default function AdminNews() {
             <h1 className="font-serif text-4xl font-bold text-white">Press & News</h1>
             <p className="text-zinc-500 text-sm mt-1 uppercase tracking-widest font-mono">Manage label announcements & blog</p>
           </div>
-          <Link to="/admin/news/new" className="luxury-button bg-white text-black font-bold flex items-center gap-2">
+          <Link to="/admin/news/new" className="luxury-button bg-[#fff] text-black font-bold flex items-center gap-2">
              <FilePlus size={16} /> Write Article
           </Link>
         </header>

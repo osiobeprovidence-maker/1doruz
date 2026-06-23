@@ -392,7 +392,7 @@ export default function UserProfile() {
                           disabled={isSaving}
                           className={cn(
                             "w-full sm:w-auto px-16 py-5 sm:py-4 text-[10px] uppercase tracking-widest font-bold flex items-center gap-3 transition-all duration-500 min-w-[220px] justify-center shadow-lg touch-manipulation",
-                            saveSuccess ? "bg-green-500 text-black border-green-500 shadow-green-500/20" : "bg-gold-500 text-black border-gold-500 hover:bg-white",
+                            saveSuccess ? "bg-green-500 text-black border-green-500 shadow-green-500/20" : "bg-gold-500 text-black border-gold-500 hover:bg-[#fff]",
                             isSaving && "opacity-70 cursor-not-allowed"
                           )}
                         >
