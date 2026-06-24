@@ -1,5 +1,5 @@
 {
-  "buildCommand": "VITE_CONVEX_URL=https://trustworthy-kiwi-444.eu-west-1.convex.cloud vite build",
+  "buildCommand": "npx vite build",
   "outputDirectory": "dist",
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
