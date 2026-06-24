@@ -5,16 +5,16 @@
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-serif: "Playfair Display", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
   
-  --color-gold-50: #fffaf0;
-  --color-gold-100: #fef3d9;
-  --color-gold-200: #fde4af;
-  --color-gold-300: #fccd7d;
-  --color-gold-400: #fbae4f;
-  --color-gold-500: #C5A059;
-  --color-gold-600: #b8860b;
-  --color-gold-700: #966d09;
-  --color-gold-800: #7a580a;
-  --color-gold-950: #4a3408;
+  --color-brand-red-50: #fff1f2;
+  --color-brand-red-100: #ffe4e6;
+  --color-brand-red-200: #fecdd3;
+  --color-brand-red-300: #fda4af;
+  --color-brand-red-400: #fb7185;
+  --color-brand-red-500: #E51922; /* Primary Logo Red */
+  --color-brand-red-600: #dc2626;
+  --color-brand-red-700: #b91c1c;
+  --color-brand-red-800: #991b1b;
+  --color-brand-red-950: #450a0a;
 
   --animate-shimmer: shimmer 2s linear infinite;
   
@@ -29,72 +29,24 @@
 }
 
 :root {
-  --bg-primary: #050505;
-  --bg-secondary: #0A0A0A;
-  --bg-card: #0A0A0A;
-  --text-primary: #E5E5E5;
-  --text-secondary: #a1a1aa;
-  --text-muted: #71717a;
-  --border-color: rgba(255, 255, 255, 0.1);
-  --border-hover: rgba(197, 160, 89, 0.3);
-  --bg-input: #09090b;
-  --bg-table-row: rgba(24, 24, 27, 0.3);
-}
-
-[data-theme="light"] {
-  --color-white: #09090b;
-  --color-zinc-50: #18181b;
-  --color-zinc-100: #27272a;
-  --color-zinc-200: #3f3f46;
-  --color-zinc-300: #52525b;
-  --color-zinc-400: #71717a;
-  --color-zinc-500: #a1a1aa;
-  --color-zinc-600: #d4d4d8;
-  --color-zinc-700: #e4e4e7;
-  --color-zinc-800: #f4f4f5;
-  --color-zinc-900: #fafafa;
-  --color-zinc-950: #ffffff;
-  --color-black: #fafafa;
-
-  --bg-primary: #fafafa;
-  --bg-secondary: #ffffff;
-  --bg-card: #ffffff;
-  --text-primary: #18181b;
-  --text-secondary: #52525b;
-  --text-muted: #a1a1aa;
-  --border-color: rgba(0, 0, 0, 0.1);
-  --border-hover: rgba(197, 160, 89, 0.5);
-  --bg-input: #f4f4f5;
-  --bg-table-row: rgba(0, 0, 0, 0.02);
+  --background: #050505;
+  --foreground: #E5E5E5;
+  --primary: #E51922;
+  --secondary: #A1A1AA;
+  --accent: #E51922;
+  --border: rgba(255, 255, 255, 0.1);
+  --card: #0A0A0A;
+  --muted: #71717a;
+  --nav-bg: rgba(5, 5, 5, 0.8);
+  --hero-gradient: linear-gradient(to right, #050505, rgba(5, 5, 5, 0.4), transparent);
 }
 
 @layer base {
   body {
-    @apply antialiased selection:bg-gold-500/30 selection:text-gold-100 overflow-x-hidden;
-    background-color: var(--bg-primary);
-    color: var(--text-primary);
-    transition: background-color 0.3s ease, color 0.3s ease;
+    background-color: var(--background);
+    color: var(--foreground);
+    @apply antialiased selection:bg-brand-red-500/30 selection:text-brand-red-100 overflow-x-hidden transition-colors duration-300;
   }
-}
-
-@utility bg-page {
-  background-color: var(--bg-primary);
-}
-
-@utility bg-card {
-  background-color: var(--bg-card);
-}
-
-@utility text-body {
-  color: var(--text-primary);
-}
-
-@utility text-muted {
-  color: var(--text-secondary);
-}
-
-@utility border-card {
-  border-color: var(--border-color);
 }
 
 @layer components {
@@ -103,19 +55,16 @@
   }
   
   .luxury-card {
-    @apply border transition-all duration-500 rounded-none;
-    border-color: var(--border-color);
-    background-color: var(--bg-card);
-  }
-  .luxury-card:hover {
-    border-color: var(--border-hover);
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    @apply transition-all duration-500 hover:border-brand-red-500/30 rounded-none;
   }
 
   .text-luxury {
-    @apply bg-gradient-to-r from-gold-100 via-gold-400 to-gold-600 bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-[var(--foreground)] via-brand-red-400 to-brand-red-600 bg-clip-text text-transparent;
   }
 
   .grid-border {
-    border-color: var(--border-color);
+    border: 1px solid var(--border);
   }
 }

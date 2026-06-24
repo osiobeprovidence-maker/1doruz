@@ -1,564 +1,252 @@
-import { useState, useEffect, useRef, type FormEvent, type DragEvent, type ElementType, type ChangeEvent } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import {
-  Image,
-  Globe,
+import React, { useState } from 'react';
+import { motion } from 'motion/react';
+import { 
+  Settings as SettingsIcon, 
+  Palette, 
+  Globe, 
+  Shield, 
+  Bell, 
+  Mail, 
+  Database,
   Check,
   Save,
-  Upload,
-  Loader2,
-  Mail,
-  Users,
-  Shield,
-  Bell,
-  Puzzle,
-  CreditCard,
-  Key,
+  Monitor,
   Cloud,
-  FileText,
-  Settings2,
-  ArrowLeft,
-  X,
-  ExternalLink,
-  Info,
+  Moon,
+  Sun
 } from 'lucide-react';
-import { useQuery, useMutation } from 'convex/react';
-import { api } from '../../convex/_generated/api';
-
-const ACCENT = '#F5B301';
-
-const PAGE_BG = '#0B0E11';
-const SIDEBAR_BG = '#101318';
-const PANEL_BG = '#171B23';
-const CARD_BG = '#1D2330';
-const INPUT_BG = '#131721';
-const BORDER = '#222836';
-const INPUT_BORDER = '#2A3140';
-
-interface NavItem {
-  id: string;
-  label: string;
-  icon: ElementType;
-  description: string;
-  soon?: boolean;
-}
-
-const NAV_ITEMS: NavItem[] = [
-  { id: 'brand', label: 'Brand & Logo', icon: Image, description: 'Logo, colors, and visual identity' },
-  { id: 'metadata', label: 'Site Metadata', icon: Globe, description: 'Title, description, and SEO' },
-  { id: 'domain', label: 'Domain Settings', icon: Cloud, description: 'Custom domain and SSL', soon: true },
-  { id: 'email', label: 'Email Settings', icon: Mail, description: 'SMTP and notification sender', soon: true },
-  { id: 'users', label: 'User Management', icon: Users, description: 'Roles, permissions, invites', soon: true },
-  { id: 'security', label: 'Security', icon: Shield, description: '2FA, sessions, audit logs', soon: true },
-  { id: 'notifications', label: 'Notifications', icon: Bell, description: 'Email and webhook alerts', soon: true },
-  { id: 'integrations', label: 'Integrations', icon: Puzzle, description: 'API keys and third-party tools', soon: true },
-  { id: 'billing', label: 'Billing', icon: CreditCard, description: 'Plans, invoices, usage', soon: true },
-  { id: 'api', label: 'API Access', icon: Key, description: 'API tokens and rate limits', soon: true },
-];
-
-function ComingSoon({ label }: { label: string }) {
-  return (
-    <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center px-8">
-      <div
-        className="w-16 h-16 rounded-2xl flex items-center justify-center mb-6"
-        style={{ backgroundColor: `${ACCENT}15` }}
-      >
-        <Settings2 size={28} style={{ color: ACCENT }} />
-      </div>
-      <h2 className="text-xl font-semibold text-white mb-2">{label}</h2>
-      <p className="text-sm" style={{ color: '#7E8794' }}>
-        This section is under development and will be available soon.
-      </p>
-    </div>
-  );
-}
-
-function DropZone({ onFile, isUploading }: { onFile: (f: File) => void; isUploading: boolean }) {
-  const [dragging, setDragging] = useState(false);
-  const [preview, setPreview] = useState<string | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  const handleDrop = (e: DragEvent) => {
-    e.preventDefault();
-    setDragging(false);
-    const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) {
-      setPreview(URL.createObjectURL(file));
-      onFile(file);
-    }
-  };
-
-  const handleInput = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setPreview(URL.createObjectURL(file));
-      onFile(file);
-    }
-  };
-
-  const handleRemove = () => {
-    setPreview(null);
-    if (inputRef.current) inputRef.current.value = '';
-  };
-
-  return (
-    <div>
-      <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={handleInput} />
-      <div
-        onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
-        onDragLeave={() => setDragging(false)}
-        onDrop={handleDrop}
-        onClick={() => !preview && inputRef.current?.click()}
-        className="relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed transition-all duration-200 cursor-pointer min-h-[200px] p-8"
-        style={{
-          borderColor: dragging ? ACCENT : dragging ? ACCENT : preview ? '#2A3140' : '#2A3140',
-          backgroundColor: dragging ? `${ACCENT}08` : '#131721',
-        }}
-      >
-        {preview ? (
-          <div className="relative w-full flex flex-col items-center gap-4">
-            <img src={preview} alt="logo preview" className="max-h-[120px] object-contain rounded-lg" />
-            <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={(e) => { e.stopPropagation(); inputRef.current?.click(); }}
-                className="text-xs font-medium flex items-center gap-1.5 transition-colors hover:text-white"
-                style={{ color: ACCENT }}
-              >
-                <Upload size={14} /> Replace image
-              </button>
-              <button
-                type="button"
-                onClick={(e) => { e.stopPropagation(); handleRemove(); }}
-                className="text-xs font-medium flex items-center gap-1.5 transition-colors"
-                style={{ color: '#7E8794' }}
-              >
-                <X size={14} /> Remove
-              </button>
-            </div>
-          </div>
-        ) : (
-          <>
-            {isUploading ? (
-              <Loader2 size={32} className="animate-spin" style={{ color: ACCENT }} />
-            ) : (
-              <>
-                <div
-                  className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110"
-                  style={{ backgroundColor: `${ACCENT}12` }}
-                >
-                  <Upload size={20} style={{ color: ACCENT }} />
-                </div>
-                <p className="text-sm font-medium text-white mb-1">Drag & drop your logo here</p>
-                <p className="text-xs" style={{ color: '#7E8794' }}>
-                  or <span style={{ color: ACCENT }}>click to browse</span>
-                </p>
-                <p className="text-[11px] mt-3" style={{ color: '#5A6577' }}>
-                  PNG, JPG, SVG or WebP &mdash; max 5MB
-                </p>
-              </>
-            )}
-          </>
-        )}
-      </div>
-    </div>
-  );
-}
+import { cn } from '../lib/utils';
 
 export default function AdminSettings() {
-  const stored = localStorage.getItem('user');
-  const userData = stored ? JSON.parse(stored) : null;
-  const callerId = userData?.id;
+  const [activeSection, setActiveSection] = useState('cosmetic');
+  const [typographyPair, setTypographyPair] = useState('heritage');
+  const [customLogo, setCustomLogo] = useState<string | null>(localStorage.getItem('platform_logo'));
 
-  const siteConfig = useQuery(api.config.get);
-
-  const [activeSection, setActiveSection] = useState('brand');
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
 
-  const [logoUrl, setLogoUrl] = useState('');
-  const [logoText, setLogoText] = useState('');
-  const [primaryColor, setPrimaryColor] = useState('');
-  const [siteTitle, setSiteTitle] = useState('');
-  const [siteDescription, setSiteDescription] = useState('');
-
-  const updateConfig = useMutation(api.config.update);
-  const generateUploadUrl = useMutation(api.config.generateUploadUrl);
-  const saveLogo = useMutation(api.config.saveLogo);
-
-  useEffect(() => {
-    if (siteConfig) {
-      setLogoUrl(siteConfig.logoUrl || '');
-      setLogoText(siteConfig.logoText || '');
-      setPrimaryColor(siteConfig.primaryColor || '');
-      setSiteTitle(siteConfig.siteTitle || '');
-      setSiteDescription(siteConfig.siteDescription || '');
-    } else {
-      setLogoText('1DORUZ');
-      setPrimaryColor('#C5A059');
-      setSiteTitle('1DORUZ RECORDS | Premium Independent Label');
-    }
-  }, [siteConfig]);
-
-  const handleUpload = async (file: File) => {
-    if (!callerId || !file) return;
-    setIsUploading(true);
-    try {
-      const uploadUrl = await generateUploadUrl({ callerId: callerId as any });
-      const response = await fetch(uploadUrl, {
-        method: 'POST',
-        body: file,
-      });
-      const { storageId } = await response.json();
-      await saveLogo({ callerId: callerId as any, storageId: storageId as any });
-      setSaveSuccess(true);
-      setTimeout(() => setSaveSuccess(false), 3000);
-    } catch {
-      alert('Upload failed.');
-    } finally {
-      setIsUploading(false);
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setCustomLogo(url);
+      localStorage.setItem('platform_logo', url);
     }
   };
 
-  const handleSave = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!callerId) return;
+  const resetLogo = () => {
+    setCustomLogo(null);
+    localStorage.removeItem('platform_logo');
+  };
+
+  const handleDeploy = () => {
     setIsSaving(true);
-    try {
-      await updateConfig({
-        callerId: callerId as any,
-        logoUrl: logoUrl || undefined,
-        logoText,
-        primaryColor,
-        siteTitle,
-        siteDescription: siteDescription || undefined,
-      });
+    // Persist current state to localStorage (typography, etc.)
+    localStorage.setItem('typography_pair', typographyPair);
+    if (customLogo) {
+      localStorage.setItem('platform_logo', customLogo);
+    } else {
+      localStorage.removeItem('platform_logo');
+    }
+    
+    setTimeout(() => {
+      setIsSaving(false);
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);
-    } catch {
-      alert('Failed to save settings.');
-    } finally {
-      setIsSaving(false);
-    }
+      // Refresh to apply changes globally
+      window.dispatchEvent(new Event('storage'));
+    }, 1500);
   };
+
+  const SECTIONS = [
+    { id: 'cosmetic', label: 'Website Cosmetic', icon: Palette, description: 'Themes, typography, and visual brand identity.' },
+    { id: 'general', label: 'General Settings', icon: Globe, description: 'Metadata, SEO, and global site behavior.' },
+    { id: 'security', label: 'Security & Access', icon: Shield, description: 'Admin roles, permissions, and session logs.' },
+    { id: 'notifications', label: 'Notifications', icon: Bell, description: 'Email alerts for demos and contact forms.' },
+    { id: 'infrastructure', label: 'Data & Engine', icon: Database, description: 'Database links and system health.' },
+  ];
 
   return (
-    <div className="min-h-screen overflow-x-hidden flex" style={{ backgroundColor: PAGE_BG }}>
-      {/* Sidebar */}
-      <aside
-        className="w-[260px] shrink-0 border-r hidden lg:flex flex-col"
-        style={{ backgroundColor: SIDEBAR_BG, borderColor: BORDER }}
-      >
-        <div className="p-6 border-b" style={{ borderColor: BORDER }}>
-          <span className="text-[10px] uppercase tracking-[0.2em] font-bold" style={{ color: ACCENT }}>
-            Control Panel
-          </span>
-          <h2 className="text-lg font-bold text-white mt-1 tracking-tight">Settings</h2>
-        </div>
+    <div className="min-h-screen p-4 sm:p-8 lg:p-12 overflow-x-hidden transition-colors duration-300" style={{ backgroundColor: 'var(--background)' }}>
+      <div className="max-w-7xl mx-auto">
+        <header className="mb-10 sm:mb-16">
+           <span className="text-[10px] uppercase tracking-[0.3em] font-bold text-brand-red-500 mb-2 block">Control Panel</span>
+           <h1 className="font-serif text-[28px] sm:text-5xl font-bold leading-tight" style={{ color: 'var(--foreground)' }}>System Settings</h1>
+           <p className="text-[var(--muted)] text-sm mt-1 uppercase tracking-widest font-mono">Configure the 1DORUZ digital ecosystem</p>
+        </header>
 
-        <nav className="flex-1 overflow-y-auto p-3 space-y-1">
-          {NAV_ITEMS.map((item) => {
-            const active = activeSection === item.id;
-            const Icon = item.icon;
-            return (
+        <div className="grid lg:grid-cols-[300px_1fr] gap-8 lg:gap-12">
+          {/* Sidebar Nav - Improved for Mobile */}
+          <aside className="flex flex-col sm:grid sm:grid-cols-2 lg:flex lg:flex-col gap-3 sm:gap-4 pb-4 lg:pb-0">
+            {SECTIONS.map((section) => (
               <button
-                key={item.id}
-                type="button"
-                onClick={() => setActiveSection(item.id)}
-                className="w-full text-left flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 group relative"
-                style={{
-                  backgroundColor: active ? `${ACCENT}0D` : 'transparent',
-                  color: active ? '#FFFFFF' : '#7E8794',
-                }}
-                onMouseEnter={(e) => {
-                  if (!active) e.currentTarget.style.backgroundColor = '#1A1F29';
-                }}
-                onMouseLeave={(e) => {
-                  if (!active) e.currentTarget.style.backgroundColor = 'transparent';
+                key={section.id}
+                onClick={() => setActiveSection(section.id)}
+                className={cn(
+                  "w-full text-left p-5 sm:p-6 border transition-all group min-h-[44px] touch-manipulation flex flex-col justify-center",
+                  activeSection === section.id 
+                    ? "bg-brand-red-500/5 border-brand-red-500/40 shadow-[0_0_20px_rgba(229,25,34,0.05)]" 
+                    : "hover:border-[var(--border)]"
+                )}
+                style={{ 
+                  backgroundColor: activeSection === section.id ? undefined : 'var(--card)',
+                  borderColor: activeSection === section.id ? undefined : 'var(--border)'
                 }}
               >
-                {active && (
-                  <motion.div
-                    layoutId="activeNav"
-                    className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full"
-                    style={{ backgroundColor: ACCENT }}
-                    transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                  />
-                )}
-                <div
-                  className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-colors"
-                  style={{
-                    backgroundColor: active ? `${ACCENT}15` : '#171B23',
-                    color: active ? ACCENT : '#5A6577',
-                  }}
-                >
-                  <Icon size={15} />
+                <div className="flex items-center gap-4 mb-2">
+                   <div className={cn(
+                     "p-2 rounded-lg transition-colors",
+                     activeSection === section.id ? "bg-brand-red-500 text-[var(--background)]" : "bg-[var(--background)] text-[var(--muted)]"
+                   )}>
+                     <section.icon size={16} />
+                   </div>
+                   <span className={cn(
+                     "text-[10px] font-bold uppercase tracking-widest",
+                     activeSection === section.id ? "text-brand-red-500" : "text-[var(--muted)]"
+                   )}>{section.label}</span>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <span className="block text-sm truncate">{item.label}</span>
-                  {item.soon && (
-                    <span
-                      className="text-[10px] font-medium uppercase tracking-wider"
-                      style={{ color: '#5A6577' }}
-                    >
-                      Coming soon
-                    </span>
-                  )}
-                </div>
+                <p className="text-[10px] text-[var(--muted)] uppercase tracking-tight leading-relaxed group-hover:text-[var(--muted)] transition-colors hidden sm:block">
+                  {section.description}
+                </p>
               </button>
-            );
-          })}
-        </nav>
-
-        <div className="p-4 border-t" style={{ borderColor: BORDER }}>
-          <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg" style={{ backgroundColor: '#171B23' }}>
-            <div className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold text-white" style={{ backgroundColor: ACCENT }}>
-              {userData?.email?.[0]?.toUpperCase() || 'A'}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-medium text-white truncate">{userData?.email || 'Admin'}</p>
-              <p className="text-[10px]" style={{ color: '#7E8794' }}>Super admin</p>
-            </div>
-          </div>
-        </div>
-      </aside>
-
-      {/* Mobile nav bar */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 border-b" style={{ backgroundColor: SIDEBAR_BG, borderColor: BORDER }}>
-        <div className="flex items-center justify-between px-4 h-14">
-          <div>
-            <span className="text-[9px] uppercase tracking-[0.2em] font-bold" style={{ color: ACCENT }}>Control Panel</span>
-            <h2 className="text-sm font-bold text-white">Settings</h2>
-          </div>
-          <select
-            value={activeSection}
-            onChange={(e) => setActiveSection(e.target.value)}
-            className="text-sm font-medium px-4 py-2 rounded-lg border appearance-none cursor-pointer"
-            style={{ backgroundColor: INPUT_BG, color: '#FFFFFF', borderColor: INPUT_BORDER }}
-          >
-            {NAV_ITEMS.map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.label}{item.soon ? ' (Soon)' : ''}
-              </option>
             ))}
-          </select>
+          </aside>
+
+          {/* Settings Canvas */}
+          <main className="luxury-card p-6 sm:p-12 backdrop-blur-sm" style={{ backgroundColor: 'var(--card)' }}>
+             {activeSection === 'cosmetic' && (
+               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-12">
+                 <div>
+                   <h3 className="font-serif text-[22px] sm:text-2xl font-bold mb-8 italic border-b pb-4" style={{ color: 'var(--foreground)', borderColor: 'var(--border)' }}>Brand Aesthetics</h3>
+                   <div className="grid md:grid-cols-2 gap-10">
+                      <div className="space-y-6">
+                        <label className="text-[10px] font-bold uppercase tracking-widest text-brand-red-500">Platform Logo</label>
+                        <div className="flex items-center gap-6">
+                           <div className="w-20 h-20 bg-[var(--background)] border border-[var(--border)] overflow-hidden rounded-lg flex items-center justify-center group relative">
+                              <img src={customLogo || "/src/assets/images/logo.jpg"} alt="Platform Logo" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" />
+                              <label className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
+                                 <Monitor size={16} className="text-white" />
+                                 <input type="file" className="hidden" accept="image/*" onChange={handleLogoUpload} />
+                              </label>
+                           </div>
+                           <div className="space-y-2">
+                              <p className="text-[10px] text-[var(--foreground)] font-bold uppercase tracking-widest">Master Branding</p>
+                              <p className="text-[9px] text-[var(--muted)] uppercase tracking-widest leading-relaxed">Square ratio recommended.<br />Visible across all navigation rails.</p>
+                              <button 
+                                onClick={resetLogo}
+                                className="text-[9px] font-bold uppercase tracking-widest text-brand-red-500 hover:text-[var(--foreground)] transition-colors mt-2 block"
+                              >
+                                Revert to Default
+                              </button>
+                           </div>
+                        </div>
+                      </div>
+                      <div className="space-y-6">
+                        <label className="text-[10px] font-bold uppercase tracking-widest text-brand-red-500">Primary Color</label>
+                        <div className="flex items-center gap-4">
+                           <div className="w-14 h-14 bg-brand-red-500 border border-brand-red-500/20 shadow-xl" />
+                           <input 
+                            type="text" 
+                            defaultValue="#E51922" 
+                            className="border px-4 py-4 text-sm font-mono w-full focus:outline-none focus:border-brand-red-500 transition-colors min-h-[44px]" 
+                            style={{ backgroundColor: 'var(--background)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                           />
+                        </div>
+                      </div>
+                   </div>
+                 </div>
+
+                 <div className="pt-12 border-t" style={{ borderColor: 'var(--border)' }}>
+                    <h4 className="text-xs font-bold uppercase tracking-[0.2em] mb-8" style={{ color: 'var(--foreground)' }}>Typography Pairs</h4>
+                    <div className="grid gap-4 sm:gap-6">
+                      <div 
+                        onClick={() => setTypographyPair('heritage')}
+                        className={cn(
+                          "luxury-card p-6 sm:p-8 border transition-all flex justify-between items-center group cursor-pointer hover:bg-brand-red-500/5 touch-manipulation",
+                          typographyPair === 'heritage' ? "border-brand-red-500/40 bg-brand-red-500/5" : "opacity-50 hover:opacity-100"
+                        )}
+                        style={{ borderColor: typographyPair === 'heritage' ? undefined : 'var(--border)' }}
+                      >
+                         <div>
+                           <div className="font-serif text-lg sm:text-xl" style={{ color: 'var(--foreground)' }}>Playfair Display / Inter</div>
+                           <div className="text-[10px] text-[var(--muted)] uppercase tracking-widest mt-1">Heritage & Modernity {typographyPair === 'heritage' && "(Active)"}</div>
+                         </div>
+                         {typographyPair === 'heritage' && <Check className="text-brand-red-500" size={20} />}
+                      </div>
+                      <div 
+                        onClick={() => setTypographyPair('brutalist')}
+                        className={cn(
+                          "luxury-card p-6 sm:p-8 border transition-all flex justify-between items-center group cursor-pointer hover:bg-brand-red-500/5 touch-manipulation",
+                          typographyPair === 'brutalist' ? "border-brand-red-500/40 bg-brand-red-500/5" : "opacity-50 hover:opacity-100"
+                        )}
+                        style={{ borderColor: typographyPair === 'brutalist' ? undefined : 'var(--border)' }}
+                      >
+                         <div>
+                           <div className="font-mono text-lg sm:text-xl" style={{ color: 'var(--foreground)' }}>Space Grotesk / JetBrains</div>
+                           <div className="text-[10px] text-[var(--muted)] uppercase tracking-widest mt-1">Brutalist / Technical {typographyPair === 'brutalist' && "(Active)"}</div>
+                         </div>
+                         {typographyPair === 'brutalist' && <Check className="text-brand-red-500" size={20} />}
+                      </div>
+                    </div>
+                 </div>
+
+                 <div className="pt-12 border-t flex justify-end" style={{ borderColor: 'var(--border)' }}>
+                    <button 
+                      onClick={handleDeploy}
+                      disabled={isSaving}
+                      className={cn(
+                        "w-full sm:w-auto px-12 py-5 sm:py-4 text-[10px] uppercase tracking-widest font-bold flex items-center gap-3 min-w-[200px] justify-center transition-all duration-500 shadow-xl touch-manipulation",
+                        saveSuccess ? "bg-green-500 text-black border-green-500 shadow-green-500/20" : "bg-brand-red-500 text-black border-brand-red-500 hover:opacity-90",
+                        isSaving && "opacity-50 cursor-not-allowed"
+                      )}
+                    >
+                      {isSaving ? (
+                        <div className="h-4 w-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
+                      ) : saveSuccess ? (
+                        <><Check size={16} /> Deployed Successfully</>
+                      ) : (
+                        <><Save size={16} /> Deploy Changes</>
+                      )}
+                    </button>
+                 </div>
+               </motion.div>
+             )}
+
+             {activeSection === 'general' && (
+               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-10">
+                 <h3 className="font-serif text-[22px] sm:text-2xl font-bold mb-8 italic border-b pb-4" style={{ color: 'var(--foreground)', borderColor: 'var(--border)' }}>Global Parameters</h3>
+                 <div className="space-y-10">
+                    <div className="grid gap-3">
+                       <label className="text-[10px] font-bold uppercase tracking-widest text-brand-red-500">Site Title</label>
+                       <input 
+                        type="text" 
+                        defaultValue="1DORUZ RECORDS | Premium Independent Label" 
+                        className="border p-5 text-sm focus:outline-none focus:border-brand-red-500 transition-colors" 
+                        style={{ backgroundColor: 'var(--background)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                       />
+                    </div>
+                    <div className="grid gap-3">
+                       <label className="text-[10px] font-bold uppercase tracking-widest text-brand-red-500">SEO Description</label>
+                       <textarea 
+                        className="border p-5 text-sm h-40 focus:outline-none focus:border-brand-red-500 resize-none transition-colors leading-relaxed"
+                        style={{ backgroundColor: 'var(--background)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                        defaultValue="The destination for experimental soul, cinematic techno, and boundary-pushing audio talent."
+                       />
+                    </div>
+                 </div>
+               </motion.div>
+             )}
+
+             {activeSection !== 'cosmetic' && activeSection !== 'general' && (
+                <div className="py-24 flex flex-col items-center justify-center text-[var(--muted)] italic border-2 border-dashed rounded-xl" style={{ borderColor: 'var(--border)' }}>
+                   <SettingsIcon size={40} className="mb-6 opacity-20" />
+                   <p className="text-[10px] uppercase tracking-widest font-bold">Standard Config Mode</p>
+                   <p className="text-[10px] uppercase tracking-[0.2em] mt-2 opacity-50">Under Architecture Update</p>
+                </div>
+             )}
+          </main>
         </div>
       </div>
-
-      {/* Main content */}
-      <main className="flex-1 overflow-y-auto pt-14 lg:pt-0">
-        <form onSubmit={handleSave} className="p-6 lg:p-10 max-w-4xl">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeSection}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.2 }}
-            >
-              <div className="rounded-xl border p-8 lg:p-10" style={{ backgroundColor: PANEL_BG, borderColor: BORDER }}>
-                {activeSection === 'brand' && (
-                  <div className="space-y-10">
-                    <div>
-                      <h1 className="text-2xl font-bold text-white tracking-tight">Brand & Logo</h1>
-                      <p className="text-sm mt-1" style={{ color: '#7E8794' }}>Manage your brand identity, logo, and accent color.</p>
-                    </div>
-
-                    <div className="space-y-8">
-                      {/* Logo upload */}
-                      <div>
-                        <label className="block text-sm font-medium text-white mb-3">Logo</label>
-                        <DropZone onFile={handleUpload} isUploading={isUploading} />
-                        <div className="flex items-center gap-2 mt-2">
-                          <Info size={12} style={{ color: '#5A6577' }} />
-                          <p className="text-[11px]" style={{ color: '#5A6577' }}>Uploaded logo displays in the navigation bar and marketing materials.</p>
-                        </div>
-                      </div>
-
-                      {/* Logo URL */}
-                      <div>
-                        <label className="block text-sm font-medium text-white mb-2">Logo URL</label>
-                        <input
-                          type="url"
-                          value={logoUrl}
-                          onChange={(e) => setLogoUrl(e.target.value)}
-                          placeholder="https://example.com/logo.png"
-                          className="w-full rounded-lg border text-sm transition-all duration-150 px-4 py-3 focus:outline-none placeholder:text-[#5A6577]"
-                          style={{
-                            backgroundColor: INPUT_BG,
-                            borderColor: INPUT_BORDER,
-                            color: '#FFFFFF',
-                          }}
-                          onFocus={(e) => { e.target.style.borderColor = ACCENT; }}
-                          onBlur={(e) => { e.target.style.borderColor = INPUT_BORDER; }}
-                        />
-                        <p className="text-xs mt-1.5" style={{ color: '#5A6577' }}>A direct URL to your logo. Overrides uploaded logo when set.</p>
-                      </div>
-
-                      {/* Logo text */}
-                      <div>
-                        <label className="block text-sm font-medium text-white mb-2">Logo Text (fallback)</label>
-                        <input
-                          type="text"
-                          value={logoText}
-                          onChange={(e) => setLogoText(e.target.value)}
-                          placeholder="1DORUZ"
-                          className="w-full rounded-lg border text-sm transition-all duration-150 px-4 py-3 focus:outline-none"
-                          style={{
-                            backgroundColor: INPUT_BG,
-                            borderColor: INPUT_BORDER,
-                            color: '#FFFFFF',
-                          }}
-                          onFocus={(e) => { e.target.style.borderColor = ACCENT; }}
-                          onBlur={(e) => { e.target.style.borderColor = INPUT_BORDER; }}
-                        />
-                      </div>
-
-                      {/* Brand color */}
-                      <div>
-                        <label className="block text-sm font-medium text-white mb-2">Brand Color</label>
-                        <div className="flex items-center gap-4">
-                          <input
-                            type="color"
-                            value={primaryColor}
-                            onChange={(e) => setPrimaryColor(e.target.value)}
-                            className="w-12 h-12 rounded-lg border cursor-pointer"
-                            style={{ borderColor: INPUT_BORDER, backgroundColor: 'transparent' }}
-                          />
-                          <div className="flex items-center gap-3 flex-1">
-                            <input
-                              type="text"
-                              value={primaryColor}
-                              onChange={(e) => setPrimaryColor(e.target.value)}
-                              placeholder="#C5A059"
-                              className="flex-1 rounded-lg border text-sm transition-all duration-150 px-4 py-3 font-mono focus:outline-none"
-                              style={{
-                                backgroundColor: INPUT_BG,
-                                borderColor: INPUT_BORDER,
-                                color: '#FFFFFF',
-                              }}
-                              onFocus={(e) => { e.target.style.borderColor = ACCENT; }}
-                              onBlur={(e) => { e.target.style.borderColor = INPUT_BORDER; }}
-                            />
-                            <div
-                              className="w-12 h-12 rounded-lg border shrink-0"
-                              style={{ backgroundColor: primaryColor || '#C5A059', borderColor: INPUT_BORDER }}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {activeSection === 'metadata' && (
-                  <div className="space-y-10">
-                    <div>
-                      <h1 className="text-2xl font-bold text-white tracking-tight">Site Metadata</h1>
-                      <p className="text-sm mt-1" style={{ color: '#7E8794' }}>Control your site title, description, and SEO settings.</p>
-                    </div>
-
-                    <div className="space-y-8">
-                      <div>
-                        <label className="block text-sm font-medium text-white mb-2">Site Title</label>
-                        <input
-                          type="text"
-                          value={siteTitle}
-                          onChange={(e) => setSiteTitle(e.target.value)}
-                          placeholder="1DORUZ RECORDS | Premium Independent Label"
-                          className="w-full rounded-lg border text-sm transition-all duration-150 px-4 py-3 focus:outline-none"
-                          style={{
-                            backgroundColor: INPUT_BG,
-                            borderColor: INPUT_BORDER,
-                            color: '#FFFFFF',
-                          }}
-                          onFocus={(e) => { e.target.style.borderColor = ACCENT; }}
-                          onBlur={(e) => { e.target.style.borderColor = INPUT_BORDER; }}
-                        />
-                        <p className="text-xs mt-1.5" style={{ color: '#5A6577' }}>Used in browser tabs, search results, and social previews.</p>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-white mb-2">Site Description</label>
-                        <textarea
-                          value={siteDescription}
-                          onChange={(e) => setSiteDescription(e.target.value)}
-                          placeholder="Describe your label for search engines and social sharing."
-                          rows={5}
-                          className="w-full rounded-lg border text-sm transition-all duration-150 px-4 py-3 focus:outline-none resize-none leading-relaxed"
-                          style={{
-                            backgroundColor: INPUT_BG,
-                            borderColor: INPUT_BORDER,
-                            color: '#FFFFFF',
-                          }}
-                          onFocus={(e) => { e.target.style.borderColor = ACCENT; }}
-                          onBlur={(e) => { e.target.style.borderColor = INPUT_BORDER; }}
-                        />
-                        <p className="text-xs mt-1.5" style={{ color: '#5A6577' }}>A short description that appears in search engine results.</p>
-                      </div>
-
-                      {/* SEO preview card */}
-                      <div className="rounded-xl border p-5" style={{ backgroundColor: CARD_BG, borderColor: BORDER }}>
-                        <p className="text-[10px] font-semibold uppercase tracking-wider mb-3" style={{ color: '#7E8794' }}>Search preview</p>
-                        <div className="space-y-1">
-                          <p className="text-sm text-green-400 truncate">https://www.1doruz.com</p>
-                          <p className="text-base font-semibold text-white truncate">{siteTitle || '1DORUZ RECORDS'}</p>
-                          <p className="text-sm" style={{ color: '#B5BDC9' }}>
-                            {siteDescription || 'Describe your label for search engines and social sharing.'}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {(() => {
-                  const soon = NAV_ITEMS.find((n) => n.soon && n.id === activeSection);
-                  return soon ? <ComingSoon label={soon.label} /> : null;
-                })()}
-              </div>
-            </motion.div>
-          </AnimatePresence>
-
-          {/* Save bar */}
-          {['brand', 'metadata'].includes(activeSection) && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mt-8 flex items-center justify-end gap-4"
-            >
-              <button
-                type="submit"
-                disabled={isSaving}
-                className="relative overflow-hidden rounded-lg text-sm font-semibold px-8 py-3 flex items-center gap-2.5 transition-all duration-200 shadow-lg"
-                style={{
-                  backgroundColor: ACCENT,
-                  color: '#0B0E11',
-                  opacity: isSaving ? 0.7 : 1,
-                }}
-              >
-                {isSaving ? (
-                  <>
-                    <Loader2 size={16} className="animate-spin" />
-                    Saving...
-                  </>
-                ) : saveSuccess ? (
-                  <>
-                    <Check size={16} />
-                    Saved
-                  </>
-                ) : (
-                  <>
-                    <Save size={16} />
-                    Save Changes
-                  </>
-                )}
-              </button>
-            </motion.div>
-          )}
-        </form>
-      </main>
     </div>
   );
 }

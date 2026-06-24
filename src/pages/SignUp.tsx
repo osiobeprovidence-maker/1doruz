@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Mail, Lock, LogIn, Chrome, ArrowRight, ShieldCheck, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, User, UserPlus, Chrome, ArrowRight, ShieldCheck, Eye, EyeOff } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 
-export default function Login() {
+export default function SignUp() {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -11,22 +12,15 @@ export default function Login() {
   const [customLogo] = useState<string | null>(localStorage.getItem('platform_logo'));
   const navigate = useNavigate();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleSignUp = (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Simulate login
+    // Simulate signup
     setTimeout(() => {
-      if (email === 'admin@1doruz.com' && password === 'admin123') {
-        localStorage.setItem('isAdmin', 'true');
-        localStorage.setItem('user', email); // Also set user for admin
-        window.dispatchEvent(new Event('storage'));
-        navigate('/admin');
-      } else {
-        localStorage.setItem('user', email);
-        window.dispatchEvent(new Event('storage'));
-        navigate('/');
-      }
+      localStorage.setItem('user', email);
+      window.dispatchEvent(new Event('storage'));
+      navigate('/profile');
       setIsSubmitting(false);
     }, 1500);
   };
@@ -47,11 +41,27 @@ export default function Login() {
                 <img src={customLogo || "/src/assets/images/logo.jpg"} alt="1DORUZ Logo" className="w-full h-full object-cover grayscale" />
               </div>
             </Link>
-            <h1 className="font-serif text-3xl font-bold text-[var(--foreground)] uppercase tracking-wider">Welcome Back</h1>
-            <p className="text-[var(--muted)] mt-2 text-sm uppercase tracking-widest font-mono">Access your 1DORUZ account</p>
+            <h1 className="font-serif text-3xl font-bold text-[var(--foreground)] uppercase tracking-wider">Join 1DORUZ</h1>
+            <p className="text-[var(--muted)] mt-2 text-sm uppercase tracking-widest font-mono">Create your account to join the roster</p>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-6">
+          <form onSubmit={handleSignUp} className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--muted)] block">Full Name</label>
+              <div className="relative">
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--muted)]" size={16} />
+                <input 
+                  type="text"
+                  required
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="John Doe"
+                  className="w-full border pl-12 pr-4 py-4 focus:border-brand-red-500 focus:outline-none transition-colors rounded-none text-sm"
+                  style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                />
+              </div>
+            </div>
+
             <div className="space-y-2">
               <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--muted)] block">Email Address</label>
               <div className="relative">
@@ -69,7 +79,7 @@ export default function Login() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--muted)] block">Password</label>
+              <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--foreground)] block">Password</label>
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--muted)]" size={16} />
                 <input 
@@ -95,13 +105,13 @@ export default function Login() {
               disabled={isSubmitting}
               className="luxury-button w-full bg-brand-red-500 text-black hover:bg-[var(--foreground)] disabled:opacity-50 flex items-center justify-center gap-2 group"
             >
-              {isSubmitting ? 'Authenticating...' : 'Sign In'} <LogIn size={18} />
+              {isSubmitting ? 'Creating Account...' : 'Sign Up'} <UserPlus size={18} />
             </button>
           </form>
 
           <div className="mt-8 flex items-center gap-4">
             <div className="flex-1 h-[1px]" style={{ backgroundColor: 'var(--border)' }} />
-            <span className="text-[9px] font-bold uppercase tracking-widest text-[var(--muted)]">Or continue with</span>
+            <span className="text-[9px] font-bold uppercase tracking-widest text-[var(--muted)]">Or join with</span>
             <div className="flex-1 h-[1px]" style={{ backgroundColor: 'var(--border)' }} />
           </div>
 
@@ -113,26 +123,11 @@ export default function Login() {
               <Chrome size={18} /> Google
             </button>
           </div>
-
-          <div className="mt-10 p-4 bg-brand-red-500/5 border border-brand-red-500/10 rounded-lg">
-            <div className="flex items-center gap-3 text-brand-red-500 mb-2">
-              <ShieldCheck size={14} />
-              <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Demo Access</span>
-            </div>
-            <div className="space-y-2">
-              <p className="text-[9px] text-[var(--muted)] leading-relaxed uppercase tracking-widest border-b border-brand-red-500/10 pb-1">
-                Admin: <span className="text-[var(--foreground)] font-mono">admin@1doruz.com</span> | <span className="text-[var(--foreground)] font-mono">admin123</span>
-              </p>
-              <p className="text-[9px] text-[var(--muted)] leading-relaxed uppercase tracking-widest">
-                Artist: <span className="text-[var(--foreground)] font-mono">artist@1doruz.com</span> | <span className="text-[var(--foreground)] font-mono">artist123</span>
-              </p>
-            </div>
-          </div>
         </div>
 
         <div className="mt-8 text-center">
           <p className="text-xs text-[var(--muted)] uppercase tracking-widest">
-            Don't have an account? <Link to="/signup" className="text-brand-red-500 cursor-pointer hover:underline">Create One</Link>
+            Already have an account? <Link to="/login" className="text-brand-red-500 cursor-pointer hover:underline">Sign In</Link>
           </p>
         </div>
       </motion.div>

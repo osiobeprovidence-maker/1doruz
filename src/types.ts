@@ -1,19 +1,43 @@
+export interface ArtistVideo {
+  id: string;
+  title: string;
+  url: string;
+  thumbnailUrl?: string;
+}
+
 export interface Artist {
   id: string;
   name: string;
   bio: string;
   imageUrl: string;
+  gallery?: string[];
   genres: string[];
+  videos?: ArtistVideo[];
   socialLinks: {
     instagram?: string;
     twitter?: string;
-    spotify?: string;
-    youtube?: string;
     tiktok?: string;
     facebook?: string;
+    threads?: string;
+    snapchat?: string;
+    discord?: string;
+    spotify?: string;
+    appleMusic?: string;
+    youtubeMusic?: string;
+    audiomack?: string;
     soundcloud?: string;
+    boomplay?: string;
+    deezer?: string;
+    tidal?: string;
+    youtube?: string;
+    vevo?: string;
+    twitch?: string;
+    website?: string;
+    linktree?: string;
+    bookingEmail?: string;
+    managementEmail?: string;
+    pressEmail?: string;
   };
-  bookingEmail: string;
   featured: boolean;
 }
 
@@ -44,6 +68,7 @@ export interface LabelEvent {
   location: string;
   venue: string;
   ticketLink: string;
+  ticketInfo?: string;
   imageUrl: string;
 }
 
