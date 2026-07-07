@@ -10,7 +10,8 @@ import {
   Save, 
   Link as LinkIcon,
   Tag,
-  Check
+  Check,
+  Image as ImageIcon
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 
@@ -19,6 +20,7 @@ export default function AdminAddRelease() {
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [releaseType, setReleaseType] = useState('Single');
+  const [coverArt, setCoverArt] = useState('');
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,10 +54,40 @@ export default function AdminAddRelease() {
           {/* Release Metadata */}
           <section className="luxury-card p-6 sm:p-10 grid md:grid-cols-[300px_1fr] gap-12">
             <div className="space-y-6">
-               <div className="aspect-square bg-[var(--background)] border-2 border-dashed border-[var(--border)] flex flex-col items-center justify-center group hover:border-brand-red-500 transition-colors cursor-pointer overflow-hidden">
-                  <Upload size={32} className="text-[var(--muted)] group-hover:text-brand-red-500 mb-2" />
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--muted)] group-hover:text-brand-red-500">Cover Art</span>
-                  <p className="text-[8px] text-[var(--muted)] mt-2">3000 x 3000px Minimum</p>
+               <div className="aspect-square bg-[var(--background)] border-2 border-dashed border-[var(--border)] flex flex-col items-center justify-center group hover:border-brand-red-500 transition-all cursor-pointer overflow-hidden relative">
+                  {coverArt ? (
+                    <>
+                      <img src={coverArt} alt="Cover Art Preview" className="w-full h-full object-cover" />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-opacity">
+                        <Upload size={32} className="text-white mb-2" />
+                        <span className="text-white text-[10px] font-bold uppercase">Change Cover</span>
+                      </div>
+                      <input 
+                        type="file" 
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) setCoverArt(URL.createObjectURL(file));
+                        }}
+                        className="absolute inset-0 opacity-0 cursor-pointer" 
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <Upload size={32} className="text-[var(--muted)] group-hover:text-brand-red-500 mb-2 transition-colors" />
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--muted)] group-hover:text-brand-red-500 transition-colors text-center px-2">Cover Art</span>
+                      <p className="text-[8px] text-[var(--muted)] mt-2">3000 x 3000px Minimum</p>
+                      <input 
+                        type="file" 
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) setCoverArt(URL.createObjectURL(file));
+                        }}
+                        className="absolute inset-0 opacity-0 cursor-pointer" 
+                      />
+                    </>
+                  )}
                </div>
                <div className="flex gap-2">
                    <button 

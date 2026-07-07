@@ -11,7 +11,8 @@ import {
   Layers,
   Save,
   Globe,
-  Check
+  Check,
+  X
 } from 'lucide-react';
 import { cn } from '../lib/utils';
 
@@ -19,6 +20,17 @@ export default function AdminNewAsset() {
   const navigate = useNavigate();
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState<{name: string, size: string} | null>(null);
+  const [preview, setPreview] = useState('');
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+      setUploadedFile({ name: file.name, size: `${sizeMB} MB` });
+      setPreview(`📄 ${file.name}`);
+    }
+  };
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,12 +62,51 @@ export default function AdminNewAsset() {
 
         <form onSubmit={handleSave} className="space-y-12">
           {/* File Upload Section */}
-          <section className="luxury-card p-6 sm:p-10 flex flex-col items-center justify-center min-h-[300px] border-dashed border-[var(--border)] bg-[var(--card)] group hover:border-brand-red-500 transition-colors cursor-pointer">
-             <div className="h-20 w-20 rounded-full bg-[var(--background)] flex items-center justify-center mb-6 group-hover:bg-brand-red-500 group-hover:text-[var(--background)] transition-colors">
-                <Upload size={32} />
-             </div>
-             <h3 className="text-sm font-bold text-[var(--foreground)] uppercase tracking-[0.3em] mb-2">Drop Electronic Files</h3>
-             <p className="text-[10px] text-[var(--muted)] uppercase tracking-widest">WAV, FLAC, AIFF, PDF, OR ZIP (Max 2GB)</p>
+          <section className="luxury-card p-6 sm:p-10">
+            <div className="flex flex-col items-center justify-center min-h-[300px] border-2 border-dashed border-[var(--border)] bg-[var(--card)] group hover:border-brand-red-500 transition-all rounded-lg cursor-pointer relative overflow-hidden">
+              {uploadedFile ? (
+                <div className="text-center space-y-6 z-10">
+                  <div className="h-20 w-20 rounded-full bg-brand-red-500/20 flex items-center justify-center mx-auto">
+                    <File className="h-10 w-10 text-brand-red-500" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-[var(--foreground)] uppercase tracking-[0.3em] mb-2">File Ready to Upload</h3>
+                    <p className="text-[10px] text-[var(--muted)] uppercase tracking-widest mb-4">{uploadedFile.name}</p>
+                    <p className="text-[9px] text-brand-red-500 font-bold uppercase">{uploadedFile.size}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setUploadedFile(null);
+                      setPreview('');
+                    }}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-brand-red-500/10 border border-brand-red-500 text-brand-red-500 text-[9px] font-bold uppercase tracking-widest hover:bg-brand-red-500 hover:text-black transition-colors rounded"
+                  >
+                    <X size={12} /> Change File
+                  </button>
+                  <input 
+                    type="file" 
+                    onChange={handleFileUpload}
+                    accept=".wav,.flac,.aiff,.pdf,.zip"
+                    className="absolute inset-0 opacity-0 cursor-pointer" 
+                  />
+                </div>
+              ) : (
+                <>
+                  <div className="h-20 w-20 rounded-full bg-[var(--background)] flex items-center justify-center mb-6 group-hover:bg-brand-red-500 group-hover:text-[var(--background)] transition-colors">
+                    <Upload size={32} />
+                  </div>
+                  <h3 className="text-sm font-bold text-[var(--foreground)] uppercase tracking-[0.3em] mb-2">Drop Electronic Files</h3>
+                  <p className="text-[10px] text-[var(--muted)] uppercase tracking-widest mb-4">WAV, FLAC, AIFF, PDF, OR ZIP (Max 2GB)</p>
+                  <input 
+                    type="file" 
+                    onChange={handleFileUpload}
+                    accept=".wav,.flac,.aiff,.pdf,.zip"
+                    className="absolute inset-0 opacity-0 cursor-pointer" 
+                  />
+                </>
+              )}
+            </div>
           </section>
 
           {/* Metadata */}

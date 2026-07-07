@@ -122,14 +122,42 @@ export default function AdminAddEvent() {
                   </div>
                 </div>
                 <div>
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-[var(--muted)] block mb-2">Featured Image URL</label>
-                  <input 
-                    type="url" 
-                    value={imageUrl}
-                    onChange={(e) => setImageUrl(e.target.value)}
-                    placeholder="https://images.unsplash.com/..." 
-                    className="w-full bg-[var(--card)] border border-[var(--border)] p-4 text-sm text-[var(--foreground)] focus:outline-none focus:border-brand-red-500" 
-                  />
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-[var(--muted)] block mb-2">Featured Image</label>
+                  <div className="relative">
+                    {imageUrl ? (
+                      <div className="relative w-full h-64 border-2 border-[var(--border)] overflow-hidden group">
+                        <img src={imageUrl} alt="Event Preview" className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                          <ImageIcon className="text-white mr-2" size={20} />
+                          <span className="text-white text-sm font-bold">Click to change</span>
+                          <input 
+                            type="file" 
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) setImageUrl(URL.createObjectURL(file));
+                            }}
+                            className="absolute inset-0 opacity-0 cursor-pointer" 
+                          />
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="w-full border-2 border-dashed border-[var(--border)] p-12 flex flex-col items-center justify-center rounded-lg hover:border-brand-red-500 transition-colors group cursor-pointer">
+                        <ImageIcon className="text-[var(--muted)] group-hover:text-brand-red-500 mb-4" size={40} />
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--muted)] group-hover:text-brand-red-500">Drop Image or Click to Upload</span>
+                        <span className="text-[8px] text-[var(--muted)] mt-2">Recommended: 1200x600px</span>
+                        <input 
+                          type="file" 
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) setImageUrl(URL.createObjectURL(file));
+                          }}
+                          className="absolute inset-0 opacity-0 cursor-pointer" 
+                        />
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
