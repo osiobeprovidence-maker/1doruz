@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
-import { ARTISTS, RELEASES, NEWS, EVENTS } from '../lib/mockData';
+import { useQuery } from 'convex/react';
+import { api } from '../../convex/_generated/api';
+import { RELEASES, NEWS, EVENTS } from '../lib/mockData';
 import { 
   Users, 
   Disc, 
@@ -18,8 +20,9 @@ import { cn } from '../lib/utils';
 import { Link } from 'react-router-dom';
 
 export default function AdminDashboard() {
+  const artists = useQuery(api.artists.list) || [];
   const STATS = [
-    { label: 'Total Artists', value: ARTISTS.length, icon: Users, color: 'text-blue-500', href: '/admin/artists' },
+    { label: 'Total Artists', value: artists.length, icon: Users, color: 'text-blue-500', href: '/admin/artists' },
     { label: 'Catalog Size', value: RELEASES.length, icon: Disc, color: 'text-brand-red-500', href: '/admin/releases' },
     { label: 'Global Reaches', value: '1.2B', icon: Globe, color: 'text-green-500' },
     { label: 'Live Events', value: EVENTS.length + JSON.parse(localStorage.getItem('dynamic_events') || '[]').length, icon: Calendar, color: 'text-purple-500', href: '/admin/events' }
@@ -88,10 +91,10 @@ export default function AdminDashboard() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[var(--border)] text-[var(--foreground)]">
-                    {ARTISTS.slice(0, 4).map(artist => (
-                      <tr key={artist.id} className="group hover:opacity-90/[0.02] transition-colors">
+                    {artists.slice(0, 4).map(artist => (
+                      <tr key={artist._id} className="group hover:opacity-90/[0.02] transition-colors">
                         <td className="px-6 py-5">
-                          <Link to={`/artists/${artist.id}`} target="_blank" className="flex items-center gap-4 hover:opacity-80 transition-opacity">
+                          <Link to={`/artists/${artist._id}`} target="_blank" className="flex items-center gap-4 hover:opacity-80 transition-opacity">
                             <img src={artist.imageUrl} alt="" className="h-12 w-12 grayscale group-hover:grayscale-0 transition-all object-cover" />
                             <div>
                               <div className="font-bold text-[var(--foreground)] text-sm uppercase tracking-tight">{artist.name}</div>
@@ -115,9 +118,9 @@ export default function AdminDashboard() {
 
               {/* Mobile Card View */}
               <div className="md:hidden space-y-4">
-                {ARTISTS.slice(0, 4).map(artist => (
-                  <div key={artist.id} className="luxury-card p-5 space-y-4 bg-[var(--card)]">
-                    <Link to={`/artists/${artist.id}`} target="_blank" className="flex items-center gap-4 hover:opacity-80 transition-opacity">
+                {artists.slice(0, 4).map(artist => (
+                  <div key={artist._id} className="luxury-card p-5 space-y-4 bg-[var(--card)]">
+                    <Link to={`/artists/${artist._id}`} target="_blank" className="flex items-center gap-4 hover:opacity-80 transition-opacity">
                       <img src={artist.imageUrl} alt="" className="h-16 w-16 grayscale transition-all object-cover rounded-sm" />
                       <div>
                         <h4 className="font-bold text-[var(--foreground)] text-[16px] uppercase tracking-tight">{artist.name}</h4>

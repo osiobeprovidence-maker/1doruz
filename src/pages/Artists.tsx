@@ -1,11 +1,11 @@
 import { motion } from 'motion/react';
-import { ARTISTS } from '../lib/mockData';
+import { useQuery } from 'convex/react';
+import { api } from '../../convex/_generated/api';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Instagram, Music2, Youtube, Disc } from 'lucide-react';
 
 export default function Artists() {
-  const dynamicArtists = JSON.parse(localStorage.getItem('dynamic_artists') || '[]');
-  const allArtists = [...ARTISTS, ...dynamicArtists];
+  const artists = useQuery(api.artists.list) || [];
 
   return (
     <div className="pb-32">
@@ -16,16 +16,16 @@ export default function Artists() {
          </div>
 
          <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-3">
-           {allArtists.map((artist, i) => (
+            {artists.map((artist, i) => (
              <motion.div
-               key={artist.id}
+                key={artist._id}
                initial={{ opacity: 0, y: 30 }}
                whileInView={{ opacity: 1, y: 0 }}
                transition={{ delay: i * 0.1 }}
                viewport={{ once: true }}
                className="group flex flex-col"
              >
-               <Link to={`/artists/${artist.id}`} className="relative h-[500px] overflow-hidden rounded-sm">
+                <Link to={`/artists/${artist._id}`} className="relative h-[500px] overflow-hidden rounded-sm">
                  <img
                    src={artist.imageUrl}
                    alt={artist.name}
@@ -46,7 +46,7 @@ export default function Artists() {
                  <div className="flex items-center justify-between">
                    <h3 className="font-serif text-3xl font-bold text-[var(--foreground)]">{artist.name}</h3>
                    <Link 
-                     to={`/artists/${artist.id}`}
+                      to={`/artists/${artist._id}`}
                      className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--border)] text-brand-red-500 hover:bg-brand-red-500 hover:text-brand-red-500 transition-all font-bold"
                    >
                      <ArrowRight size={18} />

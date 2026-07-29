@@ -1,7 +1,9 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { ARTISTS, RELEASES } from '../lib/mockData';
+import { useQuery } from 'convex/react';
+import { api } from '../../convex/_generated/api';
+import { RELEASES } from '../lib/mockData';
 import { 
   Instagram, 
   Twitter, 
@@ -56,9 +58,9 @@ const getYouTubeId = (url: string) => {
 
 export default function ArtistProfile() {
   const { id } = useParams();
+  const convexArtists = useQuery(api.artists.list) || [];
   const dynamicArtists = JSON.parse(localStorage.getItem('dynamic_artists') || '[]');
-  const allArtists = [...ARTISTS, ...dynamicArtists];
-  const artist = allArtists.find(a => a.id === id);
+  const artist = convexArtists.find((a: any) => a._id === id) || dynamicArtists.find((a: any) => a.id === id);
   const artistReleases = RELEASES.filter(r => r.artistId === id);
 
   if (!artist) {

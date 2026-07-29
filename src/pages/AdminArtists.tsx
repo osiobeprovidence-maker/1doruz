@@ -1,13 +1,23 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { ARTISTS } from '../lib/mockData';
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../../convex/_generated/api';
 import { Plus, Search, MoreHorizontal, Edit, Trash2, ExternalLink } from 'lucide-react';
 
 import { Link } from 'react-router-dom';
 
 export default function AdminArtists() {
-  const dynamicArtists = JSON.parse(localStorage.getItem('dynamic_artists') || '[]');
-  const allArtists = [...ARTISTS, ...dynamicArtists];
+  const convexArtists = useQuery(api.artists.list) || [];
+  const removeArtist = useMutation(api.artists.remove);
+
+  const handleDelete = async (id: string) => {
+    if (!window.confirm('Remove this artist? This cannot be undone.')) return;
+    try {
+      await removeArtist({ id: id as any });
+    } catch (err: any) {
+      alert(err.message || 'Failed to remove artist.');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[var(--background)] p-4 sm:p-8 lg:p-12 overflow-x-hidden">
@@ -33,9 +43,9 @@ export default function AdminArtists() {
         </header>
 
         <div className="grid gap-4 sm:gap-6">
-          {allArtists.map((artist, i) => (
+          {convexArtists.map((artist, i) => (
             <motion.div
-              key={artist.id}
+              key={artist._id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
@@ -68,7 +78,7 @@ export default function AdminArtists() {
                 </div>
                 <div className="flex items-center justify-center gap-3 w-full sm:w-auto">
                   <Link 
-                    to={`/artists/${artist.id}`}
+                    to={`/artists/${artist._id}`}
                     target="_blank"
                     className="flex-1 sm:flex-none p-4 text-[var(--foreground)] hover:text-brand-red-500 transition-colors bg-[var(--card)] border border-[var(--border)] min-h-[44px] min-w-[44px] flex items-center justify-center touch-manipulation"
                     title="View Public Profile"
@@ -78,7 +88,10 @@ export default function AdminArtists() {
                   <button className="flex-1 sm:flex-none p-4 text-[var(--muted)] hover:text-brand-red-500 transition-colors bg-[var(--background)] border border-[var(--border)] min-h-[44px] min-w-[44px] flex items-center justify-center touch-manipulation">
                     <Edit size={18} />
                   </button>
-                  <button className="flex-1 sm:flex-none p-4 text-[var(--muted)] hover:text-red-500 transition-colors bg-[var(--card)] border border-[var(--border)] min-h-[44px] min-w-[44px] flex items-center justify-center touch-manipulation">
+                  <button
+                    onClick={() => handleDelete(artist._id)}
+                    className="flex-1 sm:flex-none p-4 text-[var(--muted)] hover:text-red-500 transition-colors bg-[var(--card)] border border-[var(--border)] min-h-[44px] min-w-[44px] flex items-center justify-center touch-manipulation"
+                  >
                     <Trash2 size={18} />
                   </button>
                 </div>

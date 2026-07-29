@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
+import { useMutation } from 'convex/react';
+import { api } from '../../convex/_generated/api';
 import { 
   ArrowLeft, 
   Upload, 
@@ -107,6 +109,7 @@ export default function AdminAddArtist() {
   const [distribution, setDistribution] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const createArtist = useMutation(api.artists.create);
   const [socialLinks, setSocialLinks] = useState<Record<string, string>>({});
   const [openSections, setOpenSections] = useState<string[]>(['social']);
   const [videos, setVideos] = useState<{title: string, url: string}[]>([{title: '', url: ''}]);
@@ -160,33 +163,32 @@ export default function AdminAddArtist() {
     setSocialLinks(prev => ({ ...prev, [id]: value }));
   };
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
 
-    const newArtist = {
-      id: `dynamic-${Date.now()}`,
-      name,
-      bio,
-      imageUrl: imageUrl || 'https://images.unsplash.com/photo-1557672172-298e090bd0f1?auto=format&fit=crop&q=80&w=1200',
-      genres,
-      socialLinks,
-      videos: videos.filter(v => v.title && v.url).map((v, i) => ({ ...v, id: `v-${Date.now()}-${i}` })),
-      gallery,
-      featured: false
-    };
+    try {
+      await createArtist({
+        name,
+        bio,
+        imageUrl: imageUrl || 'https://images.unsplash.com/photo-1557672172-298e090bd0f1?auto=format&fit=crop&q=80&w=1200',
+        genres,
+        socialLinks,
+        videos: videos.filter(v => v.title && v.url).map((v, i) => ({ id: `v-${Date.now()}-${i}`, title: v.title, url: v.url })),
+        gallery: gallery.length > 0 ? gallery : undefined,
+        featured: false,
+      });
 
-    const existingDynamic = JSON.parse(localStorage.getItem('dynamic_artists') || '[]');
-    localStorage.setItem('dynamic_artists', JSON.stringify([...existingDynamic, newArtist]));
-
-    setTimeout(() => {
       setIsSaving(false);
       setSaveSuccess(true);
       setTimeout(() => {
         setSaveSuccess(false);
         navigate('/admin/artists');
       }, 1500);
-    }, 2000);
+    } catch (err) {
+      console.error('Failed to create artist:', err);
+      setIsSaving(false);
+    }
   };
 
   return (

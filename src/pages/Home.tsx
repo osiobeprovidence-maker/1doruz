@@ -1,12 +1,15 @@
 import { motion } from 'motion/react';
 import Hero from '../components/Hero';
-import { ARTISTS, RELEASES, NEWS, LABEL_STATS, EVENTS } from '../lib/mockData';
+import { useQuery } from 'convex/react';
+import { api } from '../../convex/_generated/api';
+import { RELEASES, NEWS, LABEL_STATS, EVENTS } from '../lib/mockData';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowUpRight, Music2, Globe, Disc3, Mic2, Ticket } from 'lucide-react';
 import { formatDate } from '../lib/utils';
 
 export default function Home() {
   const navigate = useNavigate();
+  const artists = useQuery(api.artists.list) || [];
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -54,12 +57,12 @@ export default function Home() {
           </div>
 
           <div className="col-span-12 md:col-span-9 grid grid-cols-1 sm:grid-cols-2">
-            {ARTISTS.filter(a => a.featured).map((artist, i) => (
+            {artists.filter(a => a.featured).map((artist, i) => (
               <motion.div
-                key={artist.id}
+                key={artist._id}
                 className="border-r last:border-r-0 p-10 group cursor-pointer hover:bg-brand-red-500/[0.05] transition-colors"
                 style={{ borderColor: 'var(--border)' }}
-                onClick={() => navigate(`/artists/${artist.id}`)}
+                onClick={() => navigate(`/artists/${artist._id}`)}
               >
                 <div className="aspect-[4/5] overflow-hidden transition-all duration-700">
                   <img src={artist.imageUrl} alt={artist.name} className="h-full w-full object-cover" />
