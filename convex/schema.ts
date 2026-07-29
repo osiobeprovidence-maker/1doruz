@@ -10,7 +10,8 @@ export default defineSchema({
   artists: defineTable({
     name: v.string(),
     bio: v.string(),
-    imageUrl: v.string(),
+    imageUrl: v.optional(v.string()),
+    imageStorageId: v.optional(v.string()),
     genres: v.array(v.string()),
     socialLinks: v.object({
       instagram: v.optional(v.string()),
@@ -134,6 +135,8 @@ export default defineSchema({
     submittedAt: v.string(),
     approvedAt: v.optional(v.string()),
     approvedBy: v.optional(v.string()),
+    rejectedAt: v.optional(v.string()),
+    rejectedBy: v.optional(v.string()),
     status: v.union(
       v.literal("pending"),
       v.literal("reviewed"),

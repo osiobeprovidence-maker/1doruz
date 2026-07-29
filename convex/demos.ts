@@ -70,6 +70,7 @@ export const updateStatus = mutation({
     id: v.id("demos"),
     status: v.union(v.literal("pending"), v.literal("reviewed"), v.literal("accepted"), v.literal("rejected")),
     approvedBy: v.optional(v.string()),
+    rejectedBy: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     if (args.status === "accepted") {
@@ -77,12 +78,24 @@ export const updateStatus = mutation({
         status: args.status,
         approvedAt: new Date().toISOString(),
         approvedBy: args.approvedBy,
+        rejectedAt: undefined,
+        rejectedBy: undefined,
+      });
+    } else if (args.status === "rejected") {
+      await ctx.db.patch(args.id, {
+        status: args.status,
+        rejectedAt: new Date().toISOString(),
+        rejectedBy: args.rejectedBy,
+        approvedAt: undefined,
+        approvedBy: undefined,
       });
     } else {
       await ctx.db.patch(args.id, {
         status: args.status,
         approvedAt: undefined,
         approvedBy: undefined,
+        rejectedAt: undefined,
+        rejectedBy: undefined,
       });
     }
   },
