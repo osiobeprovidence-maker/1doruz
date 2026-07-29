@@ -35,12 +35,20 @@ export default function AdminAddEvent() {
 
     await createEvent({
       title,
-      date,
-      location,
       venue,
+      date,
+      startDate: date,
+      location,
+      city: location?.split(',')[0]?.trim() || location,
+      country: location?.split(',')[1]?.trim() || '',
       ticketLink,
+      officialTicketUrl: ticketLink,
       ticketInfo: ticketInfo || undefined,
       imageUrl: imageUrl || 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80&w=1200',
+      heroImage: imageUrl || 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80&w=1200',
+      slug: title?.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || '',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     });
 
     setIsSaving(false);

@@ -59,7 +59,7 @@ export default function AdminEvents() {
             >
               <div className="p-6 sm:p-10 flex flex-col lg:flex-row lg:items-center gap-10">
                 <div className="w-full lg:w-48 h-32 overflow-hidden rounded-lg shrink-0">
-                  <img src={event.imageUrl} alt="" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" />
+                  <img src={event.imageUrl || event.heroImage} alt="" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" />
                 </div>
                 
                 <div className="flex-1 space-y-4">
@@ -71,15 +71,15 @@ export default function AdminEvents() {
                   <div className="flex flex-wrap gap-x-8 gap-y-3">
                     <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-[var(--muted)]">
                       <Calendar size={14} className="text-brand-red-500" /> 
-                      {new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      {new Date(event.date || event.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                     </div>
                     <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-[var(--muted)]">
                       <MapPin size={14} className="text-brand-red-500" /> 
-                      {event.venue}, {event.location}
+                      {event.venue}, {event.location || (event.city && event.country ? `${event.city}, ${event.country}` : '')}
                     </div>
                     <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-[var(--muted)]">
                       <Ticket size={14} className="text-brand-red-500" /> 
-                      <span className="truncate max-w-[150px]">{event.ticketLink}</span>
+                      <span className="truncate max-w-[150px]">{event.ticketLink || event.officialTicketUrl}</span>
                     </div>
                   </div>
 

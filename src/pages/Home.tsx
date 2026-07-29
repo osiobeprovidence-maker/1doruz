@@ -139,12 +139,12 @@ export default function Home() {
              {events.map(event => (
                <div key={event._id} className="flex justify-between items-center group">
                  <div className="flex flex-col">
-                   <span className="text-sm uppercase font-bold tracking-tight group-hover:text-brand-red-500 transition-colors" style={{ color: 'var(--foreground)' }}>{event.location.split(',')[0]}</span>
+                    <span className="text-sm uppercase font-bold tracking-tight group-hover:text-brand-red-500 transition-colors" style={{ color: 'var(--foreground)' }}>{(event.location || event.city || '').split(',')[0]}</span>
                    <span className="text-[10px] text-[var(--muted)] uppercase tracking-widest">{event.venue}</span>
-                   <span className="text-[10px] font-mono text-brand-red-500 mt-1">{new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase()}</span>
+                    <span className="text-[10px] font-mono text-brand-red-500 mt-1">{new Date(event.date || event.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase()}</span>
                  </div>
                  <a 
-                   href={event.ticketLink}
+                    href={event.ticketLink || event.officialTicketUrl}
                    className="p-2 border border-[var(--border)] text-[var(--muted)] hover:text-brand-red-500 hover:border-brand-red-500 transition-all rounded-full"
                    title="Get Tickets"
                  >

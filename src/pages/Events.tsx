@@ -28,13 +28,13 @@ export default function Events() {
                className="group luxury-card grid items-center gap-8 p-6 lg:grid-cols-[200px_1fr_250px_200px] text-center lg:text-left relative overflow-hidden"
              >
                <div className="h-40 overflow-hidden rounded-xl">
-                 <img src={event.imageUrl} alt={event.title} className="h-full w-full object-cover transition-transform group-hover:scale-110" />
+                  <img src={event.imageUrl || event.heroImage} alt={event.title} className="h-full w-full object-cover transition-transform group-hover:scale-110" />
                </div>
                
                <div className="space-y-4">
                  <h3 className="font-serif text-2xl font-bold text-[var(--foreground)] group-hover:text-brand-red-500 transition-colors">{event.title}</h3>
                  <div className="flex flex-wrap justify-center lg:justify-start gap-6 text-sm text-[var(--secondary)]">
-                   <div className="flex items-center gap-2"><MapPin size={16} className="text-brand-red-500" /> {event.venue}, {event.location}</div>
+                    <div className="flex items-center gap-2"><MapPin size={16} className="text-brand-red-500" /> {event.venue}, {event.location || (event.city && event.country ? `${event.city}, ${event.country}` : '')}</div>
                  </div>
                  {event.ticketInfo && (
                    <div className="flex items-start justify-center lg:justify-start gap-2 text-[10px] uppercase tracking-widest text-[var(--muted)] bg-[var(--background)]/50 p-3 rounded border border-[var(--border)] italic">
@@ -46,7 +46,7 @@ export default function Events() {
 
                <div className="flex flex-col gap-2 items-center lg:items-start">
                  <div className="flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-[var(--secondary)]">
-                   <Calendar size={14} className="text-brand-red-500" /> {new Date(event.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                    <Calendar size={14} className="text-brand-red-500" /> {new Date(event.date || event.startDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
                  </div>
                  <div className="flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-[var(--secondary)]">
                    <Clock size={14} className="text-brand-red-500" /> Doors: 8:00 PM
@@ -55,7 +55,7 @@ export default function Events() {
 
                <div className="flex justify-center lg:justify-end">
                  <a 
-                   href={event.ticketLink} 
+                    href={event.ticketLink || event.officialTicketUrl} 
                    target="_blank"
                    rel="noopener noreferrer"
                    className="luxury-button w-full sm:w-auto px-10 py-4 bg-[var(--foreground)] text-[var(--background)] font-bold uppercase tracking-[0.2em] text-[10px] hover:bg-brand-red-500 hover:tracking-[0.3em] transition-all duration-500 flex items-center justify-center gap-3 group/ticket"

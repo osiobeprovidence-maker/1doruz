@@ -42,6 +42,7 @@ export const create = mutation({
     artistName: v.string(),
     releaseDate: v.string(),
     coverArtUrl: v.string(),
+    coverArtStorageId: v.optional(v.string()),
     type: v.union(v.literal("Single"), v.literal("EP"), v.literal("Album")),
     streamingLinks: v.object({
       spotify: v.optional(v.string()),
@@ -70,6 +71,7 @@ export const update = mutation({
     artistName: v.optional(v.string()),
     releaseDate: v.optional(v.string()),
     coverArtUrl: v.optional(v.string()),
+    coverArtStorageId: v.optional(v.string()),
     type: v.optional(v.union(v.literal("Single"), v.literal("EP"), v.literal("Album"))),
     streamingLinks: v.optional(v.object({
       spotify: v.optional(v.string()),

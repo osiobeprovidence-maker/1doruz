@@ -54,6 +54,7 @@ export default defineSchema({
     artistName: v.string(),
     releaseDate: v.string(),
     coverArtUrl: v.string(),
+    coverArtStorageId: v.optional(v.string()),
     type: v.union(v.literal("Single"), v.literal("EP"), v.literal("Album")),
     streamingLinks: v.object({
       spotify: v.optional(v.string()),
@@ -74,13 +75,37 @@ export default defineSchema({
     .index("by_date", ["releaseDate"]),
 
   events: defineTable({
-    title: v.string(),
-    date: v.string(),
-    location: v.string(),
-    venue: v.string(),
-    ticketLink: v.string(),
+    // Fields from production events
+    title: v.optional(v.string()),
+    venue: v.optional(v.string()),
+    artistIds: v.optional(v.array(v.string())),
+    category: v.optional(v.string()),
+    city: v.optional(v.string()),
+    country: v.optional(v.string()),
+    createdAt: v.optional(v.string()),
+    description: v.optional(v.string()),
+    followers: v.optional(v.float64()),
+    gallery: v.optional(v.array(v.string())),
+    heroImage: v.optional(v.string()),
+    heroImageStorageId: v.optional(v.string()),
+    officialTicketProvider: v.optional(v.string()),
+    officialTicketUrl: v.optional(v.string()),
+    published: v.optional(v.boolean()),
+    shares: v.optional(v.float64()),
+    slug: v.optional(v.string()),
+    startDate: v.optional(v.string()),
+    status: v.optional(v.string()),
+    ticketClicks: v.optional(v.float64()),
+    ticketPrice: v.optional(v.string()),
+    ticketStatus: v.optional(v.string()),
+    updatedAt: v.optional(v.string()),
+    views: v.optional(v.float64()),
+    // Fields from current frontend schema
+    date: v.optional(v.string()),
+    location: v.optional(v.string()),
+    ticketLink: v.optional(v.string()),
     ticketInfo: v.optional(v.string()),
-    imageUrl: v.string(),
+    imageUrl: v.optional(v.string()),
   })
     .index("by_date", ["date"]),
 
@@ -107,6 +132,8 @@ export default defineSchema({
     audioFileUrl: v.optional(v.string()),
     bio: v.string(),
     submittedAt: v.string(),
+    approvedAt: v.optional(v.string()),
+    approvedBy: v.optional(v.string()),
     status: v.union(
       v.literal("pending"),
       v.literal("reviewed"),
@@ -127,10 +154,18 @@ export default defineSchema({
   users: defineTable({
     email: v.string(),
     name: v.optional(v.string()),
-    role: v.union(v.literal("admin"), v.literal("user")),
-    emailVerified: v.boolean(),
+    role: v.optional(v.union(v.literal("admin"), v.literal("user"), v.literal("super_admin"), v.literal("fan"), v.literal("manager"))),
+    emailVerified: v.optional(v.boolean()),
     passwordHash: v.optional(v.string()),
     passwordSalt: v.optional(v.string()),
+    // Legacy Firebase fields
+    firebaseUid: v.optional(v.string()),
+    imageUrl: v.optional(v.string()),
+    imageStorageId: v.optional(v.string()),
+    status: v.optional(v.string()),
+    verified: v.optional(v.boolean()),
+    createdAt: v.optional(v.string()),
+    updatedAt: v.optional(v.string()),
   })
     .index("by_email", ["email"]),
 
@@ -144,9 +179,10 @@ export default defineSchema({
 
   siteConfig: defineTable({
     logoUrl: v.optional(v.string()),
-    logoText: v.string(),
-    primaryColor: v.string(),
-    siteTitle: v.string(),
-    siteDescription: v.string(),
+    logoStorageId: v.optional(v.string()),
+    logoText: v.optional(v.string()),
+    primaryColor: v.optional(v.string()),
+    siteTitle: v.optional(v.string()),
+    siteDescription: v.optional(v.string()),
   }),
 });

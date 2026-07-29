@@ -69,9 +69,22 @@ export const updateStatus = mutation({
   args: {
     id: v.id("demos"),
     status: v.union(v.literal("pending"), v.literal("reviewed"), v.literal("accepted"), v.literal("rejected")),
+    approvedBy: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    await ctx.db.patch(args.id, { status: args.status });
+    if (args.status === "accepted") {
+      await ctx.db.patch(args.id, {
+        status: args.status,
+        approvedAt: new Date().toISOString(),
+        approvedBy: args.approvedBy,
+      });
+    } else {
+      await ctx.db.patch(args.id, {
+        status: args.status,
+        approvedAt: undefined,
+        approvedBy: undefined,
+      });
+    }
   },
 });
 

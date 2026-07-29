@@ -22,7 +22,7 @@ export const create = mutation({
   args: {
     email: v.string(),
     name: v.optional(v.string()),
-    role: v.union(v.literal("admin"), v.literal("user")),
+    role: v.union(v.literal("admin"), v.literal("user"), v.literal("super_admin"), v.literal("fan"), v.literal("manager")),
     emailVerified: v.boolean(),
   },
   handler: async (ctx, args) => {
