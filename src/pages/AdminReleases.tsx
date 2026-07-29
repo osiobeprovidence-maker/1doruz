@@ -1,12 +1,22 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { RELEASES } from '../lib/mockData';
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../../convex/_generated/api';
 import { Plus, Search, Filter, Play, Edit, Trash2, ShoppingBag } from 'lucide-react';
 import { formatDate } from '../lib/utils';
 
 import { Link } from 'react-router-dom';
 
 export default function AdminReleases() {
+  const releases = useQuery(api.releases.list) || [];
+  const removeRelease = useMutation(api.releases.remove);
+
+  const handleDelete = async (id: any) => {
+    if (window.confirm('Are you sure you want to delete this release?')) {
+      await removeRelease({ id: id as any });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[var(--background)] p-4 sm:p-8 lg:p-12 overflow-x-hidden">
       <div className="max-w-7xl mx-auto">
@@ -29,13 +39,13 @@ export default function AdminReleases() {
                <button className="flex-shrink-0 px-5 py-3 border border-[var(--border)] text-[10px] font-bold uppercase tracking-widest hover:border-brand-red-500 transition-colors bg-[var(--background)]/50 min-h-[44px] touch-manipulation">Filter By Artist</button>
                <button className="flex-shrink-0 px-5 py-3 border border-[var(--border)] text-[10px] font-bold uppercase tracking-widest hover:border-brand-red-500 transition-colors bg-[var(--background)]/50 min-h-[44px] touch-manipulation">Filter By Genre</button>
             </div>
-            <div className="text-[10px] uppercase font-bold text-[var(--muted)] tracking-[0.2em]">{RELEASES.length} Records in Database</div>
+            <div className="text-[10px] uppercase font-bold text-[var(--muted)] tracking-[0.2em]">{releases.length} Records in Database</div>
           </div>
           
           <div className="grid divide-y divide-[var(--border)]">
-            {RELEASES.map((release, i) => (
+            {releases.map((release, i) => (
               <motion.div 
-                key={release.id}
+                key={release._id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
@@ -65,7 +75,7 @@ export default function AdminReleases() {
                       <button className="p-3 bg-[var(--card)] border border-[var(--border)] hover:text-brand-red-500 transition-colors touch-manipulation min-h-[44px] min-w-[44px] flex items-center justify-center">
                         <Edit size={18} />
                       </button>
-                      <button className="p-3 bg-[var(--card)] border border-[var(--border)] hover:text-red-500 transition-colors touch-manipulation min-h-[44px] min-w-[44px] flex items-center justify-center">
+                      <button onClick={() => handleDelete(release._id)} className="p-3 bg-[var(--card)] border border-[var(--border)] hover:text-red-500 transition-colors touch-manipulation min-h-[44px] min-w-[44px] flex items-center justify-center">
                         <Trash2 size={18} />
                       </button>
                    </div>

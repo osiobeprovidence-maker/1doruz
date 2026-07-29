@@ -1,8 +1,11 @@
 import { motion } from 'motion/react';
-import { RELEASES } from '../lib/mockData';
+import { useQuery } from 'convex/react';
+import { api } from '../../convex/_generated/api';
 import { Search, Filter, Play, Music2, Music, Disc, Radio, ExternalLink, Youtube } from 'lucide-react';
 
 export default function Releases() {
+  const releases = useQuery(api.releases.list) || [];
+
   return (
     <div className="pb-32">
        <div className="mx-auto max-w-7xl px-6">
@@ -26,9 +29,9 @@ export default function Releases() {
          </div>
 
          <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-           {RELEASES.map((release, i) => (
+           {releases.map((release, i) => (
              <motion.div
-               key={release.id}
+               key={release._id}
                initial={{ opacity: 0, y: 20 }}
                whileInView={{ opacity: 1, y: 0 }}
                transition={{ delay: i * 0.05 }}

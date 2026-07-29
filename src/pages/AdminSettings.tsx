@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { 
   Settings as SettingsIcon, 
@@ -16,6 +16,8 @@ import {
   Sun
 } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../../convex/_generated/api';
 
 export default function AdminSettings() {
   const [activeSection, setActiveSection] = useState('cosmetic');
@@ -24,6 +26,23 @@ export default function AdminSettings() {
 
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [siteTitle, setSiteTitle] = useState('1DORUZ RECORDS | Premium Independent Label');
+  const [siteDescription, setSiteDescription] = useState('The destination for experimental soul, cinematic techno, and boundary-pushing audio talent.');
+  const [primaryColor, setPrimaryColor] = useState('#E51922');
+  const [logoText, setLogoText] = useState('1DORUZ');
+  const config = useQuery(api.config.get);
+  const updateConfig = useMutation(api.config.update);
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const callerId = user._id || user.id;
+
+  useEffect(() => {
+    if (config) {
+      if (config.siteTitle) setSiteTitle(config.siteTitle);
+      if (config.siteDescription) setSiteDescription(config.siteDescription);
+      if (config.primaryColor) setPrimaryColor(config.primaryColor);
+      if (config.logoText) setLogoText(config.logoText);
+    }
+  }, [config]);
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -39,23 +58,20 @@ export default function AdminSettings() {
     localStorage.removeItem('platform_logo');
   };
 
-  const handleDeploy = () => {
+  const handleDeploy = async () => {
     setIsSaving(true);
-    // Persist current state to localStorage (typography, etc.)
-    localStorage.setItem('typography_pair', typographyPair);
-    if (customLogo) {
-      localStorage.setItem('platform_logo', customLogo);
-    } else {
-      localStorage.removeItem('platform_logo');
-    }
     
-    setTimeout(() => {
-      setIsSaving(false);
+    try {
+      await updateConfig({ callerId, logoText, primaryColor, siteTitle, siteDescription });
+      localStorage.setItem('typography_pair', typographyPair);
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);
-      // Refresh to apply changes globally
       window.dispatchEvent(new Event('storage'));
-    }, 1500);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const SECTIONS = [
@@ -145,9 +161,10 @@ export default function AdminSettings() {
                         <label className="text-[10px] font-bold uppercase tracking-widest text-brand-red-500">Primary Color</label>
                         <div className="flex items-center gap-4">
                            <div className="w-14 h-14 bg-brand-red-500 border border-brand-red-500/20 shadow-xl" />
-                           <input 
+                            <input 
                             type="text" 
-                            defaultValue="#E51922" 
+                            value={primaryColor}
+                            onChange={(e) => setPrimaryColor(e.target.value)}
                             className="border px-4 py-4 text-sm font-mono w-full focus:outline-none focus:border-brand-red-500 transition-colors min-h-[44px]" 
                             style={{ backgroundColor: 'var(--background)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
                            />
@@ -218,19 +235,21 @@ export default function AdminSettings() {
                  <div className="space-y-10">
                     <div className="grid gap-3">
                        <label className="text-[10px] font-bold uppercase tracking-widest text-brand-red-500">Site Title</label>
-                       <input 
+                        <input 
                         type="text" 
-                        defaultValue="1DORUZ RECORDS | Premium Independent Label" 
+                        value={siteTitle}
+                        onChange={(e) => setSiteTitle(e.target.value)}
                         className="border p-5 text-sm focus:outline-none focus:border-brand-red-500 transition-colors" 
                         style={{ backgroundColor: 'var(--background)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
                        />
                     </div>
                     <div className="grid gap-3">
                        <label className="text-[10px] font-bold uppercase tracking-widest text-brand-red-500">SEO Description</label>
-                       <textarea 
+                        <textarea 
+                        value={siteDescription}
+                        onChange={(e) => setSiteDescription(e.target.value)}
                         className="border p-5 text-sm h-40 focus:outline-none focus:border-brand-red-500 resize-none transition-colors leading-relaxed"
                         style={{ backgroundColor: 'var(--background)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
-                        defaultValue="The destination for experimental soul, cinematic techno, and boundary-pushing audio talent."
                        />
                     </div>
                  </div>

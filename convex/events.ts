@@ -31,6 +31,7 @@ export const create = mutation({
     location: v.string(),
     venue: v.string(),
     ticketLink: v.string(),
+    ticketInfo: v.optional(v.string()),
     imageUrl: v.string(),
   },
   handler: async (ctx, args) => {
@@ -46,6 +47,7 @@ export const update = mutation({
     location: v.optional(v.string()),
     venue: v.optional(v.string()),
     ticketLink: v.optional(v.string()),
+    ticketInfo: v.optional(v.string()),
     imageUrl: v.optional(v.string()),
   },
   handler: async (ctx, args) => {

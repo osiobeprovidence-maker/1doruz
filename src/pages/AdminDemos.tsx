@@ -1,14 +1,13 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { Music4, Download, Send, Trash2, CheckCircle, Radio, User, Calendar } from 'lucide-react';
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../../convex/_generated/api';
 
 export default function AdminDemos() {
-  const DEMOS = [
-    { id: 1, artist: 'Pulse Engine', genre: 'Industrial Techno', email: 'pulse@engine.tech', date: '2h ago', status: 'pending' },
-    { id: 2, artist: 'Lunar Echo', genre: 'Dream Pop', email: 'hello@lunarecho.com', date: '5h ago', status: 'shortlisted' },
-    { id: 3, artist: 'Void Walker', genre: 'Dark Ambient', email: 'void@walker.io', date: '1d ago', status: 'pending' },
-    { id: 4, artist: 'Neon Silk', genre: 'Retrowave', email: 'neon@silk.com', date: '2d ago', status: 'pending' },
-  ];
+  const demos = useQuery(api.demos.list) || [];
+  const updateStatus = useMutation(api.demos.updateStatus);
+  const remove = useMutation(api.demos.remove);
 
   return (
     <div className="min-h-screen bg-[var(--background)] p-4 sm:p-8 lg:p-12">
@@ -30,9 +29,9 @@ export default function AdminDemos() {
         <div className="grid gap-8 lg:grid-cols-[1fr_350px]">
           {/* Demo List */}
           <div className="space-y-4 sm:space-y-6">
-            {DEMOS.map((demo, i) => (
+            {demos.map((demo, i) => (
               <motion.div
-                key={demo.id}
+                key={demo._id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 }}
@@ -43,19 +42,19 @@ export default function AdminDemos() {
                     <Music4 size={24} />
                   </div>
                   <div>
-                    <h3 className="text-[18px] sm:text-xl font-bold text-[var(--foreground)] uppercase tracking-tight">{demo.artist}</h3>
-                    <p className="text-[12px] text-[var(--muted)] uppercase tracking-widest font-mono font-bold mb-2 italic">{demo.genre}</p>
+                    <h3 className="text-[18px] sm:text-xl font-bold text-[var(--foreground)] uppercase tracking-tight">{demo.artistName}</h3>
+                    <p className="text-[12px] text-[var(--muted)] uppercase tracking-widest font-mono font-bold mb-2 italic">{demo.email}</p>
                     <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-[10px] text-[var(--muted)] font-bold tracking-widest uppercase">
                        <span className="flex items-center gap-1.5"><User size={10} className="text-[var(--muted)]" /> {demo.email}</span>
-                       <span className="flex items-center gap-1.5"><Calendar size={10} className="text-[var(--muted)]" /> {demo.date}</span>
+                       <span className="flex items-center gap-1.5"><Calendar size={10} className="text-[var(--muted)]" /> {new Date(demo._creationTime).toLocaleDateString()}</span>
                     </div>
                   </div>
                 </div>
                 
                 <div className="flex items-center gap-3 w-full md:w-auto pt-6 md:pt-0 border-t border-[var(--border)] md:border-none">
-                  <button className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-4 md:py-2.5 bg-[var(--background)] text-[10px] font-bold uppercase tracking-widest text-[var(--secondary)] hover:text-brand-red-500 transition-colors border border-[var(--border)] min-h-[44px]">Listen</button>
-                  <button className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-4 md:py-2.5 bg-brand-red-500 text-black text-[10px] font-bold uppercase tracking-widest hover:bg-[var(--foreground)] transition-colors min-h-[44px]">Recruit</button>
-                  <button className="p-3 text-[var(--muted)] hover:text-red-500 transition-colors active:scale-95 touch-manipulation">
+                  <button className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-4 md:py-2.5 bg-[var(--background)] text-[10px] font-bold uppercase tracking-widest text-[var(--secondary)] hover:text-brand-red-500 transition-colors border border-[var(--border)] min-h-[44px]" onClick={() => demo.demoUrl && window.open(demo.demoUrl, '_blank')}>Listen</button>
+                  <button onClick={() => updateStatus({ id: demo._id, status: 'reviewed' })} className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-4 md:py-2.5 bg-brand-red-500 text-black text-[10px] font-bold uppercase tracking-widest hover:bg-[var(--foreground)] transition-colors min-h-[44px]">Recruit</button>
+                  <button onClick={() => remove({ id: demo._id })} className="p-3 text-[var(--muted)] hover:text-red-500 transition-colors active:scale-95 touch-manipulation">
                     <Trash2 size={18} />
                   </button>
                 </div>

@@ -3,7 +3,6 @@ import { useParams, Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
-import { RELEASES } from '../lib/mockData';
 import { 
   Instagram, 
   Twitter, 
@@ -61,7 +60,7 @@ export default function ArtistProfile() {
   const convexArtists = useQuery(api.artists.list) || [];
   const dynamicArtists = JSON.parse(localStorage.getItem('dynamic_artists') || '[]');
   const artist = convexArtists.find((a: any) => a._id === id) || dynamicArtists.find((a: any) => a.id === id);
-  const artistReleases = RELEASES.filter(r => r.artistId === id);
+  const artistReleases = useQuery(api.releases.getByArtist, id ? { artistId: id as any } : 'skip') || [];
 
   if (!artist) {
     return (
@@ -161,7 +160,7 @@ export default function ArtistProfile() {
               <h2 className="mb-12 font-serif text-3xl font-bold" style={{ color: 'var(--foreground)' }}>Discography</h2>
               <div className="grid gap-8 sm:grid-cols-2">
                 {artistReleases.map(release => (
-                  <div key={release.id} className="luxury-card flex gap-6 p-6">
+                  <div key={release._id} className="luxury-card flex gap-6 p-6">
                     <img src={release.coverArtUrl} alt={release.title} className="h-32 w-32 rounded-lg object-cover" />
                     <div className="flex flex-col justify-center">
                       <h3 className="font-serif text-xl font-bold text-[var(--foreground)]">{release.title}</h3>

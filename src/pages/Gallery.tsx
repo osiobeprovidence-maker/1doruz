@@ -1,8 +1,10 @@
 import { motion } from 'motion/react';
-import { GALLERY } from '../lib/mockData';
 import { Maximize2, Play } from 'lucide-react';
+import { useQuery } from 'convex/react';
+import { api } from '../../convex/_generated/api';
 
 export default function Gallery() {
+  const items = useQuery(api.gallery.list) || [];
   return (
     <div className="pb-32">
        <div className="mx-auto max-w-7xl px-6">
@@ -14,9 +16,9 @@ export default function Gallery() {
          </div>
 
          <div className="columns-1 gap-8 sm:columns-2 lg:columns-3 xl:columns-4 space-y-8">
-           {GALLERY.map((item, i) => (
+           {items.map((item, i) => (
              <motion.div
-               key={item.id}
+               key={item._id}
                initial={{ opacity: 0, y: 30 }}
                whileInView={{ opacity: 1, y: 0 }}
                transition={{ delay: i * 0.1 }}

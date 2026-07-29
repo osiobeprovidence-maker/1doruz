@@ -57,6 +57,9 @@ export interface Release {
     beatport?: string;
     bandcamp?: string;
     tidal?: string;
+    audiomack?: string;
+    boomplay?: string;
+    deezer?: string;
   };
   featured: boolean;
 }
@@ -93,7 +96,8 @@ export interface DemoSubmission {
   id: string;
   artistName: string;
   email: string;
-  demoUrl: string;
+  demoUrl?: string;
+  audioFileUrl?: string;
   bio: string;
   status: 'pending' | 'reviewed' | 'accepted' | 'rejected';
   submittedAt: string;

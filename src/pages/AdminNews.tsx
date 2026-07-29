@@ -1,11 +1,21 @@
 import React from 'react';
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../../convex/_generated/api';
 import { motion } from 'motion/react';
-import { NEWS } from '../lib/mockData';
 import { Edit, Trash2, Calendar, User, Eye, FilePlus } from 'lucide-react';
 
 import { Link } from 'react-router-dom';
 
 export default function AdminNews() {
+  const articles = useQuery(api.news.list) || [];
+  const removeArticle = useMutation(api.news.remove);
+
+  const handleDelete = async (id: any) => {
+    if (window.confirm('Are you sure you want to remove this article?')) {
+      await removeArticle({ id });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[var(--background)] p-8 lg:p-12">
       <div className="max-w-7xl mx-auto">
@@ -20,9 +30,9 @@ export default function AdminNews() {
         </header>
 
         <div className="grid gap-12">
-          {NEWS.map((article, i) => (
+          {articles.map((article, i) => (
             <motion.div
-              key={article.id}
+              key={article._id}
               initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: i * 0.1 }}
@@ -60,9 +70,9 @@ export default function AdminNews() {
                    <button className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-[var(--muted)] hover:text-brand-red-500 transition-colors">
                      <Eye size={14} /> Preview
                    </button>
-                   <button className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-[var(--muted)] hover:text-red-500 transition-colors">
-                     <Trash2 size={14} /> Remove
-                   </button>
+                   <button onClick={() => handleDelete(article._id)} className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-[var(--muted)] hover:text-red-500 transition-colors">
+                      <Trash2 size={14} /> Remove
+                    </button>
                 </div>
               </div>
             </motion.div>

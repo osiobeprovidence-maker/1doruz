@@ -2,7 +2,7 @@ import { motion } from 'motion/react';
 import Hero from '../components/Hero';
 import { useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
-import { RELEASES, NEWS, LABEL_STATS, EVENTS } from '../lib/mockData';
+import { LABEL_STATS } from '../lib/mockData';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowUpRight, Music2, Globe, Disc3, Mic2, Ticket } from 'lucide-react';
 import { formatDate } from '../lib/utils';
@@ -10,6 +10,9 @@ import { formatDate } from '../lib/utils';
 export default function Home() {
   const navigate = useNavigate();
   const artists = useQuery(api.artists.list) || [];
+  const newsArticles = useQuery(api.news.list) || [];
+  const releases = useQuery(api.releases.list) || [];
+  const events = useQuery(api.events.list) || [];
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -93,8 +96,8 @@ export default function Home() {
                </div>
              </Link>
           </div>
-          {RELEASES.slice(0, 3).map((release) => (
-            <div key={release.id} className="p-8 border-r last:border-r-0 group cursor-pointer hover:bg-brand-red-500/[0.05] transition-colors" style={{ borderColor: 'var(--border)' }}>
+          {releases.slice(0, 3).map((release) => (
+            <div key={release._id} className="p-8 border-r last:border-r-0 group cursor-pointer hover:bg-brand-red-500/[0.05] transition-colors" style={{ borderColor: 'var(--border)' }}>
               <div className="relative aspect-square transition-all" style={{ backgroundColor: 'var(--card)' }}>
                  <img src={release.coverArtUrl} alt={release.title} className="h-full w-full object-cover" />
                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
@@ -116,8 +119,8 @@ export default function Home() {
         <div className="md:col-span-8 p-10 border-r" style={{ borderColor: 'var(--border)' }}>
           <span className="text-brand-red-500 text-[10px] uppercase tracking-widest font-bold mb-8 block">Latest Updates</span>
           <div className="space-y-12">
-            {NEWS.slice(0, 2).map(article => (
-              <div key={article.id} className="group cursor-pointer flex flex-col sm:flex-row gap-8 items-center">
+            {newsArticles.slice(0, 2).map(article => (
+              <div key={article._id} className="group cursor-pointer flex flex-col sm:flex-row gap-8 items-center">
                 <div className="h-32 w-full sm:w-48 overflow-hidden transition-all flex-shrink-0">
                   <img src={article.imageUrl} alt="" className="h-full w-full object-cover" />
                 </div>
@@ -133,8 +136,8 @@ export default function Home() {
         <div className="md:col-span-4 p-10 flex flex-col justify-between" style={{ backgroundColor: 'var(--card)' }}>
            <span className="text-[10px] text-brand-red-500 uppercase tracking-widest font-bold">Upcoming World Tour</span>
            <div className="space-y-6 mt-8">
-             {EVENTS.map(event => (
-               <div key={event.id} className="flex justify-between items-center group">
+             {events.map(event => (
+               <div key={event._id} className="flex justify-between items-center group">
                  <div className="flex flex-col">
                    <span className="text-sm uppercase font-bold tracking-tight group-hover:text-brand-red-500 transition-colors" style={{ color: 'var(--foreground)' }}>{event.location.split(',')[0]}</span>
                    <span className="text-[10px] text-[var(--muted)] uppercase tracking-widest">{event.venue}</span>

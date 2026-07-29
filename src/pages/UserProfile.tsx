@@ -15,10 +15,14 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '../lib/utils';
+import { useQuery } from 'convex/react';
+import { api } from '../../convex/_generated/api';
 
 export default function UserProfile() {
   const navigate = useNavigate();
   const userName = localStorage.getItem('user') || 'Member';
+  const userEmail = userName;
+  const userDemos = useQuery(api.demos.getByEmail, userEmail ? { email: userEmail } : 'skip') || [];
   const [activeView, setActiveView] = useState('overview'); // 'overview' or 'settings'
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -37,27 +41,7 @@ export default function UserProfile() {
     twoFactor: true
   });
 
-  const [submissions, setSubmissions] = useState(() => {
-    const staticDemos = [
-      { id: 1, title: 'Atmospheric Dream', date: '2024-05-20', status: 'In Review' },
-      { id: 2, title: 'Urban Drift', date: '2024-04-12', status: 'Requires Info' },
-    ];
-    const dynamicDemos = JSON.parse(localStorage.getItem('submitted_demos') || '[]');
-    return [...dynamicDemos, ...staticDemos];
-  });
 
-  React.useEffect(() => {
-    const handleStorage = () => {
-      const dynamicDemos = JSON.parse(localStorage.getItem('submitted_demos') || '[]');
-      const staticDemos = [
-        { id: 1, title: 'Atmospheric Dream', date: '2024-05-20', status: 'In Review' },
-        { id: 2, title: 'Urban Drift', date: '2024-04-12', status: 'Requires Info' },
-      ];
-      setSubmissions([...dynamicDemos, ...staticDemos]);
-    };
-    window.addEventListener('storage', handleStorage);
-    return () => window.removeEventListener('storage', handleStorage);
-  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('user');
@@ -142,15 +126,15 @@ export default function UserProfile() {
                     </div>
 
                     <div className="space-y-4 sm:space-y-6">
-                      {submissions.map((submission) => (
-                        <div key={submission.id} className="flex flex-col md:flex-row md:items-center justify-between p-5 sm:p-6 bg-[var(--card)]/30 border border-[var(--border)] hover:border-[var(--border)] transition-colors gap-4">
+                      {userDemos.map((submission) => (
+                        <div key={submission._id} className="flex flex-col md:flex-row md:items-center justify-between p-5 sm:p-6 bg-[var(--card)]/30 border border-[var(--border)] hover:border-[var(--border)] transition-colors gap-4">
                           <div className="flex items-center gap-4">
                             <div className="h-10 w-10 flex-shrink-0 bg-[var(--card)] flex items-center justify-center border border-[var(--border)] text-[var(--muted)]">
                               <History size={18} />
                             </div>
                             <div>
-                              <h4 className="font-bold text-[var(--foreground)] text-xs sm:text-sm uppercase tracking-tight">{submission.title}</h4>
-                              <p className="text-[9px] text-[var(--muted)] uppercase tracking-widest">Submitted on {submission.date}</p>
+                              <h4 className="font-bold text-[var(--foreground)] text-xs sm:text-sm uppercase tracking-tight">{submission.artistName}</h4>
+                              <p className="text-[9px] text-[var(--muted)] uppercase tracking-widest">Submitted on {new Date(submission._creationTime).toLocaleDateString()}</p>
                             </div>
                           </div>
                           <div className="flex items-center justify-between md:justify-end gap-6">

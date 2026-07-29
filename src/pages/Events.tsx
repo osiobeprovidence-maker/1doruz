@@ -1,11 +1,10 @@
 import { motion } from 'motion/react';
-import { EVENTS } from '../lib/mockData';
+import { useQuery } from 'convex/react';
+import { api } from '../../convex/_generated/api';
 import { MapPin, Calendar, Clock, Ticket, Info } from 'lucide-react';
-import { LabelEvent } from '../types';
 
 export default function Events() {
-  const dynamicEvents = JSON.parse(localStorage.getItem('dynamic_events') || '[]') as LabelEvent[];
-  const allEvents = [...dynamicEvents, ...EVENTS];
+  const events = useQuery(api.events.list) || [];
 
   return (
     <div className="pb-32">
@@ -19,9 +18,9 @@ export default function Events() {
          </div>
 
          <div className="space-y-6">
-           {allEvents.map((event, i) => (
-             <motion.div
-               key={event.id}
+            {events.map((event, i) => (
+              <motion.div
+                key={event._id}
                initial={{ opacity: 0, x: -20 }}
                whileInView={{ opacity: 1, x: 0 }}
                transition={{ delay: i * 0.1 }}

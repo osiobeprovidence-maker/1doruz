@@ -1,29 +1,29 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { Mail, Phone, MapPin, Send, Instagram, Twitter, Youtube } from 'lucide-react';
+import { useMutation } from 'convex/react';
+import { api } from '../../convex/_generated/api';
 
 export default function Contact() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [subject, setSubject] = useState('General Inquiry');
+  const [message, setMessage] = useState('');
+  const submitContact = useMutation(api.contact.submit);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Simulate API call
-    const formData = new FormData(e.currentTarget);
-    const data = Object.fromEntries(formData.entries());
-    
     try {
-      const response = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-      
-      if (response.ok) {
-        setSubmitted(true);
-      }
+      await submitContact({ name, email, subject, message });
+      setSubmitted(true);
+      setName('');
+      setEmail('');
+      setSubject('General Inquiry');
+      setMessage('');
     } catch (error) {
       console.error('Contact error:', error);
     } finally {
@@ -117,42 +117,53 @@ export default function Contact() {
                <form onSubmit={handleSubmit} className="space-y-6">
                  <div className="space-y-2">
                    <label className="text-xs font-bold uppercase tracking-widest text-[var(--muted)]">Full Name</label>
-                   <input
-                     required
-                     name="name"
-                     type="text"
-                     placeholder="John Doe"
-                     className="w-full bg-[var(--card)] border border-[var(--border)] px-6 py-4 text-[var(--foreground)] focus:border-brand-red-500 focus:outline-none transition-colors rounded-xl"
-                   />
+                    <input
+                      required
+                      name="name"
+                      type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="John Doe"
+                      className="w-full bg-[var(--card)] border border-[var(--border)] px-6 py-4 text-[var(--foreground)] focus:border-brand-red-500 focus:outline-none transition-colors rounded-xl"
+                    />
                  </div>
                  <div className="space-y-2">
                    <label className="text-xs font-bold uppercase tracking-widest text-[var(--muted)]">Email Address</label>
-                   <input
-                     required
-                     name="email"
-                     type="email"
-                     placeholder="john@example.com"
-                     className="w-full bg-[var(--background)] border border-[var(--border)] px-6 py-4 text-[var(--foreground)] focus:border-brand-red-500 focus:outline-none transition-colors rounded-xl"
-                   />
+                    <input
+                      required
+                      name="email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="john@example.com"
+                      className="w-full bg-[var(--background)] border border-[var(--border)] px-6 py-4 text-[var(--foreground)] focus:border-brand-red-500 focus:outline-none transition-colors rounded-xl"
+                    />
                  </div>
                  <div className="space-y-2">
                    <label className="text-xs font-bold uppercase tracking-widest text-[var(--muted)]">Subject</label>
-                   <select className="w-full bg-[var(--card)] border border-[var(--border)] px-6 py-4 text-[var(--foreground)] focus:border-brand-red-500 focus:outline-none transition-colors rounded-xl appearance-none">
-                     <option>General Inquiry</option>
-                     <option>Booking Request</option>
-                     <option>Distribution Inquiry</option>
-                     <option>Press & Media</option>
-                   </select>
+                    <select
+                      name="subject"
+                      value={subject}
+                      onChange={(e) => setSubject(e.target.value)}
+                      className="w-full bg-[var(--card)] border border-[var(--border)] px-6 py-4 text-[var(--foreground)] focus:border-brand-red-500 focus:outline-none transition-colors rounded-xl appearance-none"
+                    >
+                      <option>General Inquiry</option>
+                      <option>Booking Request</option>
+                      <option>Distribution Inquiry</option>
+                      <option>Press & Media</option>
+                    </select>
                  </div>
                  <div className="space-y-2">
                    <label className="text-xs font-bold uppercase tracking-widest text-[var(--muted)]">Your Message</label>
-                   <textarea
-                     required
-                     name="message"
-                     rows={5}
-                     placeholder="How can we help you?"
-                     className="w-full bg-[var(--card)] border border-[var(--border)] px-6 py-4 text-[var(--foreground)] focus:border-brand-red-500 focus:outline-none transition-colors rounded-xl resize-none"
-                   />
+                    <textarea
+                      required
+                      name="message"
+                      value={message}
+                      onChange={(e) => setMessage(e.target.value)}
+                      rows={5}
+                      placeholder="How can we help you?"
+                      className="w-full bg-[var(--card)] border border-[var(--border)] px-6 py-4 text-[var(--foreground)] focus:border-brand-red-500 focus:outline-none transition-colors rounded-xl resize-none"
+                    />
                  </div>
                  <button
                    disabled={isSubmitting}

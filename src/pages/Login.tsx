@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { Mail, Lock, LogIn, Chrome, ArrowRight, ShieldCheck, Eye, EyeOff } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useMutation } from 'convex/react';
+import { api } from '../../convex/_generated/api';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -9,26 +11,25 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [customLogo] = useState<string | null>(localStorage.getItem('platform_logo'));
+  const [error, setError] = useState('');
   const navigate = useNavigate();
+  const login = useMutation(api.auth.loginWithPassword);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setError('');
     
-    // Simulate login
-    setTimeout(() => {
-      if (email === 'admin@1doruz.com' && password === 'admin123') {
-        localStorage.setItem('isAdmin', 'true');
-        localStorage.setItem('user', email); // Also set user for admin
-        window.dispatchEvent(new Event('storage'));
-        navigate('/admin');
-      } else {
-        localStorage.setItem('user', email);
-        window.dispatchEvent(new Event('storage'));
-        navigate('/');
-      }
+    try {
+      await login({ email, password });
+      localStorage.setItem('user', JSON.stringify({ email, role: 'admin' }));
+      localStorage.setItem('isAdmin', 'true');
+      navigate('/admin');
+    } catch (err) {
+      setError('Invalid email or password. Try the magic link option.');
+    } finally {
       setIsSubmitting(false);
-    }, 1500);
+    }
   };
 
   return (
@@ -91,6 +92,11 @@ export default function Login() {
               </div>
             </div>
 
+            {error && (
+              <div className="p-4 bg-brand-red-500/10 border border-brand-red-500/20 rounded-lg">
+                <p className="text-[10px] text-brand-red-500 font-bold uppercase tracking-widest">{error}</p>
+              </div>
+            )}
             <button 
               disabled={isSubmitting}
               className="luxury-button w-full bg-brand-red-500 text-black hover:bg-[var(--foreground)] disabled:opacity-50 flex items-center justify-center gap-2 group"

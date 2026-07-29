@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useMutation } from 'convex/react';
+import { api } from '../../convex/_generated/api';
 import { motion } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -19,18 +21,29 @@ export default function AdminWriteArticle() {
   const navigate = useNavigate();
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
+  const [title, setTitle] = useState('');
+  const [excerpt, setExcerpt] = useState('');
+  const [content, setContent] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
+  const [author, setAuthor] = useState('1DORUZ Media');
+  const [publishedAt, setPublishedAt] = useState(new Date().toISOString().split('T')[0]);
+  const createArticle = useMutation(api.news.create);
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
-    setTimeout(() => {
-      setIsSaving(false);
+    try {
+      await createArticle({ title, excerpt, content, imageUrl, author, publishedAt });
       setSaveSuccess(true);
       setTimeout(() => {
         setSaveSuccess(false);
         navigate('/admin/news');
       }, 1500);
-    }, 2000);
+    } catch (error) {
+      console.error('Failed to create article:', error);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -54,11 +67,11 @@ export default function AdminWriteArticle() {
              <div className="luxury-card p-6 sm:p-10 space-y-8">
                 <div className="grid gap-4">
                   <label className="text-[10px] font-bold uppercase tracking-widest text-brand-red-500">Article Title</label>
-                  <input type="text" placeholder="The Future of 1DORUZ: A New Chapter Begins" className="bg-[var(--card)] border border-[var(--border)] p-6 text-xl font-serif font-bold text-[var(--foreground)] focus:outline-none focus:border-brand-red-500 italic" />
+                  <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="The Future of 1DORUZ: A New Chapter Begins" className="bg-[var(--card)] border border-[var(--border)] p-6 text-xl font-serif font-bold text-[var(--foreground)] focus:outline-none focus:border-brand-red-500 italic" />
                 </div>
                 <div className="grid gap-4">
                   <label className="text-[10px] font-bold uppercase tracking-widest text-[var(--muted)]">Short Excerpt</label>
-                  <textarea placeholder="Summarize the article in 2-3 sentences..." className="bg-[var(--card)] border border-[var(--border)] p-6 text-sm text-[var(--foreground)] h-24 focus:outline-none focus:border-brand-red-500 resize-none" />
+                  <textarea value={excerpt} onChange={(e) => setExcerpt(e.target.value)} placeholder="Summarize the article in 2-3 sentences..." className="bg-[var(--card)] border border-[var(--border)] p-6 text-sm text-[var(--foreground)] h-24 focus:outline-none focus:border-brand-red-500 resize-none" />
                 </div>
              </div>
 
@@ -66,15 +79,16 @@ export default function AdminWriteArticle() {
                 <div className="aspect-video luxury-card border-dashed flex flex-col items-center justify-center group hover:border-brand-red-500 transition-colors cursor-pointer bg-[var(--card)]">
                     <ImageIcon size={32} className="text-[var(--muted)] group-hover:text-brand-red-500 mb-2" />
                     <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--muted)] group-hover:text-brand-red-500">Feature Image</span>
+                    <input type="text" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="Paste image URL..." className="mt-4 bg-transparent border border-[var(--border)] px-4 py-2 text-xs text-[var(--foreground)] text-center focus:outline-none focus:border-brand-red-500 w-4/5" />
                 </div>
                 <div className="luxury-card p-8 space-y-6">
                    <div className="flex items-center gap-4 text-[var(--foreground)]">
                       <User size={16} />
-                      <input type="text" placeholder="Author Name" className="bg-transparent border-none focus:outline-none text-xs text-[var(--foreground)]" defaultValue="1DORUZ Media" />
+                      <input type="text" value={author} onChange={(e) => setAuthor(e.target.value)} placeholder="Author Name" className="bg-transparent border-none focus:outline-none text-xs text-[var(--foreground)]" />
                    </div>
                    <div className="flex items-center gap-4 text-[var(--muted)]">
                       <Calendar size={16} />
-                      <input type="date" className="bg-transparent border-none focus:outline-none text-xs text-[var(--foreground)]" />
+                      <input type="date" value={publishedAt} onChange={(e) => setPublishedAt(e.target.value)} className="bg-transparent border-none focus:outline-none text-xs text-[var(--foreground)]" />
                    </div>
                 </div>
              </div>
@@ -88,10 +102,11 @@ export default function AdminWriteArticle() {
                 <div className="w-[1px] h-6 bg-[var(--card)] mx-2" />
                 <span className="text-[10px] font-bold uppercase tracking-widest flex items-center">Rich Text Editor Active</span>
              </div>
-             <textarea 
-               placeholder="Begin writing your story here..." 
-               className="flex-1 bg-transparent border-none focus:outline-none text-[var(--secondary)] leading-relaxed font-serif text-lg resize-none"
-             />
+              <textarea 
+                value={content} onChange={(e) => setContent(e.target.value)}
+                placeholder="Begin writing your story here..." 
+                className="flex-1 bg-transparent border-none focus:outline-none text-[var(--secondary)] leading-relaxed font-serif text-lg resize-none"
+              />
           </section>
 
           <div className="flex flex-col sm:flex-row justify-between items-center pt-8 gap-8">

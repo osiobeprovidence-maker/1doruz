@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
+import { useMutation } from 'convex/react';
+import { api } from '../../convex/_generated/api';
 import { 
   Calendar, 
   MapPin, 
@@ -16,6 +18,7 @@ import { Link } from 'react-router-dom';
 
 export default function AdminAddEvent() {
   const navigate = useNavigate();
+  const createEvent = useMutation(api.events.create);
   const [title, setTitle] = useState('');
   const [date, setDate] = useState('');
   const [location, setLocation] = useState('');
@@ -26,29 +29,23 @@ export default function AdminAddEvent() {
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
 
-    const newEvent = {
-      id: `event-${Date.now()}`,
+    await createEvent({
       title,
       date,
       location,
       venue,
       ticketLink,
-      ticketInfo,
+      ticketInfo: ticketInfo || undefined,
       imageUrl: imageUrl || 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80&w=1200',
-    };
+    });
 
-    const existingEvents = JSON.parse(localStorage.getItem('dynamic_events') || '[]');
-    localStorage.setItem('dynamic_events', JSON.stringify([...existingEvents, newEvent]));
-
-    setTimeout(() => {
-      setIsSaving(false);
-      setSaveSuccess(true);
-      setTimeout(() => navigate('/admin/events'), 1500);
-    }, 1500);
+    setIsSaving(false);
+    setSaveSuccess(true);
+    setTimeout(() => navigate('/admin/events'), 1500);
   };
 
   return (

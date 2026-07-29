@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { EVENTS } from '../lib/mockData';
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../../convex/_generated/api';
 import { 
   Plus, 
   Calendar, 
@@ -14,8 +15,8 @@ import {
 import { Link } from 'react-router-dom';
 
 export default function AdminEvents() {
-  const dynamicEvents = JSON.parse(localStorage.getItem('dynamic_events') || '[]');
-  const allEvents = [...dynamicEvents, ...EVENTS];
+  const events = useQuery(api.events.list) || [];
+  const removeEvent = useMutation(api.events.remove);
 
   return (
     <div className="min-h-screen bg-[var(--background)] p-4 sm:p-8 lg:p-12">
@@ -48,9 +49,9 @@ export default function AdminEvents() {
         </div>
 
         <div className="space-y-6">
-          {allEvents.map((event, i) => (
+          {events.map((event, i) => (
             <motion.div
-              key={event.id}
+              key={event._id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.1 }}
@@ -93,7 +94,10 @@ export default function AdminEvents() {
                   <button className="flex-1 lg:w-32 bg-[var(--background)] border border-[var(--border)] text-[9px] font-bold uppercase tracking-widest py-3 px-6 hover:bg-brand-red-500 hover:text-black transition-all flex items-center justify-center gap-2">
                     <Edit size={14} /> Edit
                   </button>
-                  <button className="flex-1 lg:w-32 bg-[var(--background)] border border-red-500/20 text-[9px] font-bold uppercase tracking-widest py-3 px-6 text-red-500 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center gap-2">
+                  <button 
+                    onClick={() => { if (window.confirm('Remove this event?')) removeEvent({ id: event._id as any }); }}
+                    className="flex-1 lg:w-32 bg-[var(--background)] border border-red-500/20 text-[9px] font-bold uppercase tracking-widest py-3 px-6 text-red-500 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center gap-2"
+                  >
                     <Trash2 size={14} /> Remove
                   </button>
                 </div>

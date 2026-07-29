@@ -63,6 +63,9 @@ export default defineSchema({
       beatport: v.optional(v.string()),
       bandcamp: v.optional(v.string()),
       tidal: v.optional(v.string()),
+      audiomack: v.optional(v.string()),
+      boomplay: v.optional(v.string()),
+      deezer: v.optional(v.string()),
     }),
     featured: v.boolean(),
   })
@@ -76,6 +79,7 @@ export default defineSchema({
     location: v.string(),
     venue: v.string(),
     ticketLink: v.string(),
+    ticketInfo: v.optional(v.string()),
     imageUrl: v.string(),
   })
     .index("by_date", ["date"]),
@@ -102,6 +106,7 @@ export default defineSchema({
     demoUrl: v.optional(v.string()),
     audioFileUrl: v.optional(v.string()),
     bio: v.string(),
+    submittedAt: v.string(),
     status: v.union(
       v.literal("pending"),
       v.literal("reviewed"),

@@ -51,6 +51,7 @@ export const create = mutation({
       demoUrl: args.demoUrl,
       audioFileUrl: args.audioFileUrl,
       bio: args.bio,
+      submittedAt: new Date().toISOString(),
       status: args.status ?? "pending",
     });
 

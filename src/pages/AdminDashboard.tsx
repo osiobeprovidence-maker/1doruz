@@ -1,8 +1,6 @@
-import { useState } from 'react';
 import { motion } from 'motion/react';
 import { useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
-import { RELEASES, NEWS, EVENTS } from '../lib/mockData';
 import { 
   Users, 
   Disc, 
@@ -21,11 +19,13 @@ import { Link } from 'react-router-dom';
 
 export default function AdminDashboard() {
   const artists = useQuery(api.artists.list) || [];
+  const releases = useQuery(api.releases.list) || [];
+  const events = useQuery(api.events.list) || [];
   const STATS = [
     { label: 'Total Artists', value: artists.length, icon: Users, color: 'text-blue-500', href: '/admin/artists' },
-    { label: 'Catalog Size', value: RELEASES.length, icon: Disc, color: 'text-brand-red-500', href: '/admin/releases' },
+    { label: 'Catalog Size', value: releases.length, icon: Disc, color: 'text-brand-red-500', href: '/admin/releases' },
     { label: 'Global Reaches', value: '1.2B', icon: Globe, color: 'text-green-500' },
-    { label: 'Live Events', value: EVENTS.length + JSON.parse(localStorage.getItem('dynamic_events') || '[]').length, icon: Calendar, color: 'text-purple-500', href: '/admin/events' }
+    { label: 'Live Events', value: events.length, icon: Calendar, color: 'text-purple-500', href: '/admin/events' }
   ];
 
   return (

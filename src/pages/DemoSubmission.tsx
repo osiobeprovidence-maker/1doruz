@@ -2,13 +2,20 @@ import React, { useState, useRef } from 'react';
 import { motion } from 'motion/react';
 import { Send, Music4, User, Mail, Link as LinkIcon, FileText, Upload, X, Music } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { useMutation } from 'convex/react';
+import { api } from '../../convex/_generated/api';
 
 export default function DemoSubmission() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [artistName, setArtistName] = useState('');
+  const [email, setEmail] = useState('');
+  const [demoUrl, setDemoUrl] = useState('');
+  const [bio, setBio] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const submitDemo = useMutation(api.demos.create);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -42,25 +49,19 @@ export default function DemoSubmission() {
     e.preventDefault();
     setIsSubmitting(true);
     
-    const formData = new FormData(e.currentTarget);
-    const title = file ? file.name : (formData.get('demoUrl') as string || 'Untitled Demo');
-    const newDemo = {
-      id: Date.now(),
-      title: title.split('.')[0],
-      date: new Date().toISOString().split('T')[0],
-      status: 'In Review'
-    };
-
-    const existingDemos = JSON.parse(localStorage.getItem('submitted_demos') || '[]');
-    localStorage.setItem('submitted_demos', JSON.stringify([newDemo, ...existingDemos]));
-    
-    setTimeout(() => {
+    try {
+      await submitDemo({ artistName, email, demoUrl: demoUrl || undefined, bio });
       setSubmitted(true);
-      setIsSubmitting(false);
+      setArtistName('');
+      setEmail('');
+      setDemoUrl('');
+      setBio('');
       setFile(null);
-      // Trigger update for other components
-      window.dispatchEvent(new Event('storage'));
-    }, 2000);
+    } catch (error) {
+      console.error('Submission error:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -115,6 +116,8 @@ export default function DemoSubmission() {
                     required
                     name="artistName"
                     type="text"
+                    value={artistName}
+                    onChange={(e) => setArtistName(e.target.value)}
                     placeholder="Enter your artist name"
                     className="w-full bg-[var(--background)] border border-[var(--border)] px-4 py-4 text-[var(--foreground)] focus:border-brand-red-500 focus:outline-none transition-colors"
                   />
@@ -127,6 +130,8 @@ export default function DemoSubmission() {
                     required
                     name="email"
                     type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@example.com"
                     className="w-full bg-[var(--background)] border border-[var(--border)] px-4 py-4 text-[var(--foreground)] focus:border-brand-red-500 focus:outline-none transition-colors"
                   />
@@ -205,6 +210,8 @@ export default function DemoSubmission() {
                   <input
                     name="demoUrl"
                     type="url"
+                    value={demoUrl}
+                    onChange={(e) => setDemoUrl(e.target.value)}
                     placeholder="https://soundcloud.com/you/demo"
                     className="w-full bg-[var(--background)] border border-[var(--border)] px-4 py-4 text-[var(--foreground)] focus:border-brand-red-500 focus:outline-none transition-colors"
                   />
@@ -218,6 +225,8 @@ export default function DemoSubmission() {
                 <textarea
                   required
                   name="bio"
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
                   rows={4}
                   placeholder="Tell us about yourself and your musical journey..."
                   className="w-full bg-[var(--background)] border border-[var(--border)] px-4 py-4 text-[var(--foreground)] focus:border-brand-red-500 focus:outline-none transition-colors resize-none"

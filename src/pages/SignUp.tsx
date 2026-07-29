@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { Mail, Lock, User, UserPlus, Chrome, ArrowRight, ShieldCheck, Eye, EyeOff } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useMutation } from 'convex/react';
+import { api } from '../../convex/_generated/api';
 
 export default function SignUp() {
   const [name, setName] = useState('');
@@ -10,19 +12,25 @@ export default function SignUp() {
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [customLogo] = useState<string | null>(localStorage.getItem('platform_logo'));
+  const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
+  const createUser = useMutation(api.users.create);
+  const sendMagicLink = useMutation(api.auth.sendMagicLink);
 
-  const handleSignUp = (e: React.FormEvent) => {
+  const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Simulate signup
-    setTimeout(() => {
-      localStorage.setItem('user', email);
-      window.dispatchEvent(new Event('storage'));
-      navigate('/profile');
+    try {
+      await createUser({ email, name: email.split('@')[0], role: 'user', emailVerified: false });
+      await sendMagicLink({ email });
+      localStorage.setItem('pendingMagicLinkEmail', email);
+      setSuccess(true);
+    } catch (err) {
+      console.error(err);
+    } finally {
       setIsSubmitting(false);
-    }, 1500);
+    }
   };
 
   return (
@@ -45,84 +53,104 @@ export default function SignUp() {
             <p className="text-[var(--muted)] mt-2 text-sm uppercase tracking-widest font-mono">Create your account to join the roster</p>
           </div>
 
-          <form onSubmit={handleSignUp} className="space-y-6">
-            <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--muted)] block">Full Name</label>
-              <div className="relative">
-                <User className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--muted)]" size={16} />
-                <input 
-                  type="text"
-                  required
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="John Doe"
-                  className="w-full border pl-12 pr-4 py-4 focus:border-brand-red-500 focus:outline-none transition-colors rounded-none text-sm"
-                  style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
-                />
+          {success ? (
+            <div className="text-center py-12">
+              <div className="w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Mail size={24} className="text-green-500" />
               </div>
+              <h3 className="font-serif text-2xl font-bold text-[var(--foreground)] uppercase tracking-wider mb-4">Check Your Email</h3>
+              <p className="text-[var(--muted)] text-sm uppercase tracking-widest font-mono leading-relaxed">
+                We've sent a magic link to <strong className="text-[var(--foreground)]">{email}</strong>. Click it to sign in.
+              </p>
+              <button 
+                onClick={() => navigate('/login')}
+                className="mt-8 text-[10px] font-bold uppercase tracking-widest text-brand-red-500 hover:text-[var(--foreground)] transition-colors"
+              >
+                Back to Sign In
+              </button>
             </div>
+          ) : (
+            <>
+              <form onSubmit={handleSignUp} className="space-y-6">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--muted)] block">Full Name</label>
+                  <div className="relative">
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--muted)]" size={16} />
+                    <input 
+                      type="text"
+                      required
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="John Doe"
+                      className="w-full border pl-12 pr-4 py-4 focus:border-brand-red-500 focus:outline-none transition-colors rounded-none text-sm"
+                      style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                    />
+                  </div>
+                </div>
 
-            <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--muted)] block">Email Address</label>
-              <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--muted)]" size={16} />
-                <input 
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@example.com"
-                  className="w-full border pl-12 pr-4 py-4 focus:border-brand-red-500 focus:outline-none transition-colors rounded-none text-sm"
-                  style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
-                />
-              </div>
-            </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--muted)] block">Email Address</label>
+                  <div className="relative">
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--muted)]" size={16} />
+                    <input 
+                      type="email"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="name@example.com"
+                      className="w-full border pl-12 pr-4 py-4 focus:border-brand-red-500 focus:outline-none transition-colors rounded-none text-sm"
+                      style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                    />
+                  </div>
+                </div>
 
-            <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--foreground)] block">Password</label>
-              <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--muted)]" size={16} />
-                <input 
-                  type={showPassword ? 'text' : 'password'}
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full border pl-12 pr-12 py-4 focus:border-brand-red-500 focus:outline-none transition-colors rounded-none text-sm"
-                  style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--foreground)] block">Password</label>
+                  <div className="relative">
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--muted)]" size={16} />
+                    <input 
+                      type={showPassword ? 'text' : 'password'}
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="w-full border pl-12 pr-12 py-4 focus:border-brand-red-500 focus:outline-none transition-colors rounded-none text-sm"
+                      style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
+                    >
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
+                </div>
+
+                <button 
+                  disabled={isSubmitting}
+                  className="luxury-button w-full bg-brand-red-500 text-black hover:bg-[var(--foreground)] disabled:opacity-50 flex items-center justify-center gap-2 group"
                 >
-                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  {isSubmitting ? 'Creating Account...' : 'Sign Up'} <UserPlus size={18} />
+                </button>
+              </form>
+
+              <div className="mt-8 flex items-center gap-4">
+                <div className="flex-1 h-[1px]" style={{ backgroundColor: 'var(--border)' }} />
+                <span className="text-[9px] font-bold uppercase tracking-widest text-[var(--muted)]">Or join with</span>
+                <div className="flex-1 h-[1px]" style={{ backgroundColor: 'var(--border)' }} />
+              </div>
+
+              <div className="mt-8 grid grid-cols-1 gap-4">
+                <button 
+                  className="flex items-center justify-center gap-3 px-4 py-4 border hover:border-brand-red-500 transition-colors text-xs font-bold uppercase tracking-widest"
+                  style={{ borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                >
+                  <Chrome size={18} /> Google
                 </button>
               </div>
-            </div>
-
-            <button 
-              disabled={isSubmitting}
-              className="luxury-button w-full bg-brand-red-500 text-black hover:bg-[var(--foreground)] disabled:opacity-50 flex items-center justify-center gap-2 group"
-            >
-              {isSubmitting ? 'Creating Account...' : 'Sign Up'} <UserPlus size={18} />
-            </button>
-          </form>
-
-          <div className="mt-8 flex items-center gap-4">
-            <div className="flex-1 h-[1px]" style={{ backgroundColor: 'var(--border)' }} />
-            <span className="text-[9px] font-bold uppercase tracking-widest text-[var(--muted)]">Or join with</span>
-            <div className="flex-1 h-[1px]" style={{ backgroundColor: 'var(--border)' }} />
-          </div>
-
-          <div className="mt-8 grid grid-cols-1 gap-4">
-            <button 
-              className="flex items-center justify-center gap-3 px-4 py-4 border hover:border-brand-red-500 transition-colors text-xs font-bold uppercase tracking-widest"
-              style={{ borderColor: 'var(--border)', color: 'var(--foreground)' }}
-            >
-              <Chrome size={18} /> Google
-            </button>
-          </div>
+            </>
+          )}
         </div>
 
         <div className="mt-8 text-center">

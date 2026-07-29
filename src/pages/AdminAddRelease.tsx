@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../../convex/_generated/api';
 import { 
   ArrowLeft, 
   Disc, 
@@ -21,18 +23,51 @@ export default function AdminAddRelease() {
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [releaseType, setReleaseType] = useState('Single');
   const [coverArt, setCoverArt] = useState('');
+  const [title, setTitle] = useState('');
+  const [artistId, setArtistId] = useState('');
+  const [artistName, setArtistName] = useState('');
+  const [releaseDate, setReleaseDate] = useState('');
+  const [coverArtUrl, setCoverArtUrl] = useState('');
+  const [featured, setFeatured] = useState(false);
+  const [streamingLinks, setStreamingLinks] = useState({
+    spotify: '',
+    appleMusic: '',
+    youtube: '',
+    soundcloud: '',
+    beatport: '',
+    bandcamp: '',
+    tidal: '',
+    audiomack: '',
+    boomplay: '',
+    deezer: ''
+  });
 
-  const handleSave = (e: React.FormEvent) => {
+  const createRelease = useMutation(api.releases.create);
+  const artists = useQuery(api.artists.list) || [];
+
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
-    setTimeout(() => {
-      setIsSaving(false);
+    try {
+      await createRelease({
+        title,
+        artistId: artistId as any,
+        artistName,
+        releaseDate,
+        coverArtUrl: coverArtUrl || coverArt,
+        type: releaseType,
+        streamingLinks,
+        featured
+      });
       setSaveSuccess(true);
       setTimeout(() => {
         setSaveSuccess(false);
         navigate('/admin/releases');
       }, 1500);
-    }, 2000);
+    } catch (err) {
+      console.error('Failed to create release', err);
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -72,7 +107,7 @@ export default function AdminAddRelease() {
                         className="absolute inset-0 opacity-0 cursor-pointer" 
                       />
                     </>
-                  ) : (
+                   ) : (
                     <>
                       <Upload size={32} className="text-[var(--muted)] group-hover:text-brand-red-500 mb-2 transition-colors" />
                       <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--muted)] group-hover:text-brand-red-500 transition-colors text-center px-2">Cover Art</span>
@@ -88,6 +123,10 @@ export default function AdminAddRelease() {
                       />
                     </>
                   )}
+               </div>
+               <div className="grid gap-4">
+                 <label className="text-[10px] font-bold uppercase tracking-widest text-[var(--muted)]">Cover Art URL</label>
+                 <input type="text" placeholder="https://..." value={coverArtUrl} onChange={(e) => setCoverArtUrl(e.target.value)} className="bg-[var(--card)] border border-[var(--border)] p-4 text-sm text-[var(--foreground)] focus:outline-none focus:border-brand-red-500" />
                </div>
                <div className="flex gap-2">
                    <button 
@@ -120,15 +159,15 @@ export default function AdminAddRelease() {
             <div className="space-y-8">
                 <div className="grid gap-4">
                   <label className="text-[10px] font-bold uppercase tracking-widest text-[var(--muted)]">Release Title</label>
-                  <input type="text" placeholder="Sonic Echoes" className="bg-[var(--card)] border border-[var(--border)] p-4 text-sm text-[var(--foreground)] focus:outline-none focus:border-brand-red-500" />
+                  <input type="text" placeholder="Sonic Echoes" value={title} onChange={(e) => setTitle(e.target.value)} className="bg-[var(--card)] border border-[var(--border)] p-4 text-sm text-[var(--foreground)] focus:outline-none focus:border-brand-red-500" />
                </div>
                <div className="grid gap-4">
                   <label className="text-[10px] font-bold uppercase tracking-widest text-[var(--muted)]">Artist</label>
-                  <select className="bg-[var(--card)] border border-[var(--border)] p-4 text-sm text-[var(--foreground)] focus:outline-none focus:border-brand-red-500 appearance-none">
-                     <option>Select Artist...</option>
-                     <option>ZEPHYR</option>
-                     <option>MARA LUNA</option>
-                     <option>DRIP LORD</option>
+                  <select value={artistId} onChange={(e) => { setArtistId(e.target.value); setArtistName(e.target.options[e.target.selectedIndex].text); }} className="bg-[var(--card)] border border-[var(--border)] p-4 text-sm text-[var(--foreground)] focus:outline-none focus:border-brand-red-500 appearance-none">
+                     <option value="">Select Artist...</option>
+                     {artists.map((a: any) => (
+                       <option key={a._id} value={a._id}>{a.name}</option>
+                     ))}
                   </select>
                </div>
                <div className="grid md:grid-cols-2 gap-8">
@@ -136,7 +175,7 @@ export default function AdminAddRelease() {
                     <label className="text-[10px] font-bold uppercase tracking-widest text-[var(--muted)]">Release Date</label>
                     <div className="relative">
                       <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--muted)]" size={16} />
-                      <input type="date" className="w-full bg-[var(--card)] border border-[var(--border)] pl-12 pr-4 py-4 text-sm text-[var(--foreground)] focus:outline-none focus:border-brand-red-500" />
+                      <input type="date" value={releaseDate} onChange={(e) => setReleaseDate(e.target.value)} className="w-full bg-[var(--card)] border border-[var(--border)] pl-12 pr-4 py-4 text-sm text-[var(--foreground)] focus:outline-none focus:border-brand-red-500" />
                     </div>
                   </div>
                   <div className="grid gap-4">
@@ -156,43 +195,43 @@ export default function AdminAddRelease() {
              <div className="grid sm:grid-cols-2 gap-4">
                 <div className="flex items-center gap-4 bg-[var(--card)] border border-[var(--border)] p-4">
                    <LinkIcon size={16} className="text-[#1DB954]" />
-                   <input type="text" placeholder="Spotify Link" className="bg-transparent border-none focus:outline-none text-[11px] text-[var(--foreground)] w-full font-mono" />
+                   <input type="text" placeholder="Spotify Link" value={streamingLinks.spotify} onChange={(e) => setStreamingLinks(s => ({ ...s, spotify: e.target.value }))} className="bg-transparent border-none focus:outline-none text-[11px] text-[var(--foreground)] w-full font-mono" />
                 </div>
                 <div className="flex items-center gap-4 bg-[var(--card)] border border-[var(--border)] p-4">
                    <LinkIcon size={16} className="text-[#FC3C44]" />
-                   <input type="text" placeholder="Apple Music Link" className="bg-transparent border-none focus:outline-none text-[11px] text-[var(--foreground)] w-full font-mono" />
+                   <input type="text" placeholder="Apple Music Link" value={streamingLinks.appleMusic} onChange={(e) => setStreamingLinks(s => ({ ...s, appleMusic: e.target.value }))} className="bg-transparent border-none focus:outline-none text-[11px] text-[var(--foreground)] w-full font-mono" />
                 </div>
                 <div className="flex items-center gap-4 bg-[var(--card)] border border-[var(--border)] p-4">
                    <LinkIcon size={16} className="text-[#FF0000]" />
-                   <input type="text" placeholder="YouTube Music" className="bg-transparent border-none focus:outline-none text-[11px] text-[var(--foreground)] w-full font-mono" />
+                   <input type="text" placeholder="YouTube Music" value={streamingLinks.youtube} onChange={(e) => setStreamingLinks(s => ({ ...s, youtube: e.target.value }))} className="bg-transparent border-none focus:outline-none text-[11px] text-[var(--foreground)] w-full font-mono" />
                 </div>
                 <div className="flex items-center gap-4 bg-[var(--card)] border border-[var(--border)] p-4">
                    <LinkIcon size={16} className="text-[#000000] dark:text-white" />
-                   <input type="text" placeholder="Tidal Link" className="bg-transparent border-none focus:outline-none text-[11px] text-[var(--foreground)] w-full font-mono" />
+                   <input type="text" placeholder="Tidal Link" value={streamingLinks.tidal} onChange={(e) => setStreamingLinks(s => ({ ...s, tidal: e.target.value }))} className="bg-transparent border-none focus:outline-none text-[11px] text-[var(--foreground)] w-full font-mono" />
                 </div>
                 <div className="flex items-center gap-4 bg-[var(--card)] border border-[var(--border)] p-4">
                    <LinkIcon size={16} className="text-[#FF3300]" />
-                   <input type="text" placeholder="SoundCloud" className="bg-transparent border-none focus:outline-none text-[11px] text-[var(--foreground)] w-full font-mono" />
+                   <input type="text" placeholder="SoundCloud" value={streamingLinks.soundcloud} onChange={(e) => setStreamingLinks(s => ({ ...s, soundcloud: e.target.value }))} className="bg-transparent border-none focus:outline-none text-[11px] text-[var(--foreground)] w-full font-mono" />
                 </div>
                 <div className="flex items-center gap-4 bg-[var(--card)] border border-[var(--border)] p-4">
                    <LinkIcon size={16} className="text-[#FFA200]" />
-                   <input type="text" placeholder="Audiomack" className="bg-transparent border-none focus:outline-none text-[11px] text-[var(--foreground)] w-full font-mono" />
+                   <input type="text" placeholder="Audiomack" value={streamingLinks.audiomack} onChange={(e) => setStreamingLinks(s => ({ ...s, audiomack: e.target.value }))} className="bg-transparent border-none focus:outline-none text-[11px] text-[var(--foreground)] w-full font-mono" />
                 </div>
                 <div className="flex items-center gap-4 bg-[var(--card)] border border-[var(--border)] p-4">
                    <LinkIcon size={16} className="text-[#00A0E9]" />
-                   <input type="text" placeholder="Boomplay" className="bg-transparent border-none focus:outline-none text-[11px] text-[var(--foreground)] w-full font-mono" />
+                   <input type="text" placeholder="Boomplay" value={streamingLinks.boomplay} onChange={(e) => setStreamingLinks(s => ({ ...s, boomplay: e.target.value }))} className="bg-transparent border-none focus:outline-none text-[11px] text-[var(--foreground)] w-full font-mono" />
                 </div>
                 <div className="flex items-center gap-4 bg-[var(--card)] border border-[var(--border)] p-4">
                    <LinkIcon size={16} className="text-[#00A8E1]" />
-                   <input type="text" placeholder="Amazon Music" className="bg-transparent border-none focus:outline-none text-[11px] text-[var(--foreground)] w-full font-mono" />
+                   <input type="text" placeholder="Amazon Music" value={streamingLinks.beatport} onChange={(e) => setStreamingLinks(s => ({ ...s, beatport: e.target.value }))} className="bg-transparent border-none focus:outline-none text-[11px] text-[var(--foreground)] w-full font-mono" />
                 </div>
                 <div className="flex items-center gap-4 bg-[var(--card)] border border-[var(--border)] p-4">
                    <LinkIcon size={16} className="text-[#A2AAAD]" />
-                   <input type="text" placeholder="Deezer" className="bg-transparent border-none focus:outline-none text-[11px] text-[var(--foreground)] w-full font-mono" />
+                   <input type="text" placeholder="Deezer" value={streamingLinks.deezer} onChange={(e) => setStreamingLinks(s => ({ ...s, deezer: e.target.value }))} className="bg-transparent border-none focus:outline-none text-[11px] text-[var(--foreground)] w-full font-mono" />
                 </div>
                 <div className="flex items-center gap-4 bg-[var(--card)] border border-[var(--border)] p-4">
                    <LinkIcon size={16} className="text-[#9146FF]" />
-                   <input type="text" placeholder="Twitch / Soundtrack" className="bg-transparent border-none focus:outline-none text-[11px] text-[var(--foreground)] w-full font-mono" />
+                   <input type="text" placeholder="Twitch / Soundtrack" value={streamingLinks.bandcamp} onChange={(e) => setStreamingLinks(s => ({ ...s, bandcamp: e.target.value }))} className="bg-transparent border-none focus:outline-none text-[11px] text-[var(--foreground)] w-full font-mono" />
                 </div>
              </div>
           </section>

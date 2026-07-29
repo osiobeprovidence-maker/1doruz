@@ -1,8 +1,10 @@
+import { useQuery } from 'convex/react';
+import { api } from '../../convex/_generated/api';
 import { motion } from 'motion/react';
-import { NEWS } from '../lib/mockData';
 import { Calendar, User, ArrowRight } from 'lucide-react';
 
 export default function News() {
+  const articles = useQuery(api.news.list) || [];
   return (
     <div className="pb-32">
        <div className="mx-auto max-w-7xl px-6">
@@ -12,9 +14,9 @@ export default function News() {
          </div>
 
          <div className="grid gap-20">
-           {NEWS.map((article, i) => (
+           {articles.map((article, i) => (
              <motion.article
-               key={article.id}
+               key={article._id}
                initial={{ opacity: 0, y: 30 }}
                whileInView={{ opacity: 1, y: 0 }}
                transition={{ delay: i * 0.1 }}
