@@ -3,7 +3,9 @@ import { motion } from 'motion/react';
 import { Mail, Lock, User, UserPlus, Chrome, ArrowRight, ShieldCheck, Eye, EyeOff } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useMutation } from 'convex/react';
+import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { api } from '../../convex/_generated/api';
+import { auth } from '../lib/firebase';
 
 export default function SignUp() {
   const [name, setName] = useState('');
@@ -13,9 +15,11 @@ export default function SignUp() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [customLogo] = useState<string | null>(localStorage.getItem('platform_logo'));
   const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
   const createUser = useMutation(api.users.create);
   const sendMagicLink = useMutation(api.auth.sendMagicLink);
+  const upsertUser = useMutation(api.users.upsertUser);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,6 +32,28 @@ export default function SignUp() {
       setSuccess(true);
     } catch (err) {
       console.error(err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleGoogle = async () => {
+    setIsSubmitting(true);
+    setError('');
+    try {
+      const provider = new GoogleAuthProvider();
+      const { user: fbUser } = await signInWithPopup(auth, provider);
+      const result = await upsertUser({
+        email: fbUser.email ?? '',
+        name: fbUser.displayName ?? undefined,
+        imageUrl: fbUser.photoURL ?? undefined,
+        firebaseUid: fbUser.uid,
+      });
+      localStorage.setItem('user', JSON.stringify({ email: result.email, role: result.role }));
+      localStorage.setItem('isAdmin', result.role === 'admin' ? 'true' : 'false');
+      navigate(result.role === 'admin' ? '/admin' : '/profile');
+    } catch (err) {
+      setError('Google sign-in failed. Check the Firebase Auth domain or try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -143,7 +169,9 @@ export default function SignUp() {
 
               <div className="mt-8 grid grid-cols-1 gap-4">
                 <button 
-                  className="flex items-center justify-center gap-3 px-4 py-4 border hover:border-brand-red-500 transition-colors text-xs font-bold uppercase tracking-widest"
+                  onClick={handleGoogle}
+                  disabled={isSubmitting}
+                  className="flex items-center justify-center gap-3 px-4 py-4 border hover:border-brand-red-500 transition-colors text-xs font-bold uppercase tracking-widest disabled:opacity-50"
                   style={{ borderColor: 'var(--border)', color: 'var(--foreground)' }}
                 >
                   <Chrome size={18} /> Google
