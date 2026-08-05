@@ -12,9 +12,9 @@ Convex agent skills for common tasks can be installed by running
 
 ## Convex Deployment
 
-- **Dev deployment**: `dev:third-jellyfish-302` (VITE_CONVEX_URL: `https://third-jellyfish-302.eu-west-1.convex.cloud`)
-- **Production deploy**: Run `npx convex deploy` to create production deployment, then update `VITE_CONVEX_URL` in Vercel env vars
-- **Production URL**: `https://trustworthy-kiwi-444.eu-west-1.convex.cloud`
+- **Active deployment**: `combative-civet-220` (`CONVEX_DEPLOYMENT=dev:combative-civet-220` in `.env.local`, VITE_CONVEX_URL: `https://combative-civet-220.eu-west-1.convex.cloud`)
+- **Live site (1doruz.com)** uses the same deployment above; `VITE_CONVEX_URL` in Vercel env vars must match it
+- **Other known deployments (not currently in use)**: `accurate-lark-115` (old `.env.production`), `trustworthy-kiwi-444` (previously listed as production), `third-jellyfish-302`, `impressive-wolverine-125`, `mild-tapir-539`
 - **Auth**: Custom magic link auth via Resend (actions in `convex/emails.ts`). Convex env vars needed: `RESEND_API_KEY`, `SITE_URL`
 - **Vercel env vars required**: `VITE_CONVEX_URL`, `RESEND_API_KEY`, `SITE_URL`, `AUTH_DOMAIN`
 
