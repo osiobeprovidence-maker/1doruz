@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Disc, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useQuery } from 'convex/react';
+import { api } from '../../convex/_generated/api';
 import { cn } from '../lib/utils';
 
 const USER_LINKS = [
@@ -25,17 +27,16 @@ const ADMIN_LINKS = [
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [customLogo, setCustomLogo] = useState<string | null>(localStorage.getItem('platform_logo'));
   const location = useLocation();
   const isAdminPath = location.pathname.startsWith('/admin');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const config = useQuery(api.config.get);
+  const customLogo = config?.logoUrl || null;
 
   useEffect(() => {
-    const checkLogo = () => setCustomLogo(localStorage.getItem('platform_logo'));
     setIsLoggedIn(!!localStorage.getItem('user'));
     const handleStorageChange = () => {
       setIsLoggedIn(!!localStorage.getItem('user'));
-      checkLogo();
     };
     window.addEventListener('storage', handleStorageChange);
     return () => window.removeEventListener('storage', handleStorageChange);

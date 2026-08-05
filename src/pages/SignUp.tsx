@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { Mail, Lock, User, UserPlus, Chrome, ArrowRight, ShieldCheck, Eye, EyeOff } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useMutation } from 'convex/react';
+import { useQuery, useMutation } from 'convex/react';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { api } from '../../convex/_generated/api';
 import { auth } from '../lib/firebase';
@@ -13,13 +13,14 @@ export default function SignUp() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [customLogo] = useState<string | null>(localStorage.getItem('platform_logo'));
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const createUser = useMutation(api.users.create);
   const sendMagicLink = useMutation(api.auth.sendMagicLink);
   const upsertUser = useMutation(api.users.upsertUser);
+  const config = useQuery(api.config.get);
+  const customLogo = config?.logoUrl || null;
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,7 +50,7 @@ export default function SignUp() {
         imageUrl: fbUser.photoURL ?? undefined,
         firebaseUid: fbUser.uid,
       });
-      localStorage.setItem('user', JSON.stringify({ email: result.email, role: result.role }));
+      localStorage.setItem('user', JSON.stringify({ id: result.id, email: result.email, role: result.role, name: result.name }));
       localStorage.setItem('isAdmin', result.role === 'admin' ? 'true' : 'false');
       navigate(result.role === 'admin' ? '/admin' : '/profile');
     } catch (err) {

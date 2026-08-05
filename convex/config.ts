@@ -59,6 +59,7 @@ export const saveLogo = mutation({
   args: {
     callerId: v.id("users"),
     storageId: v.id("_storage"),
+    baseUrl: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const caller = await ctx.db.get(args.callerId);
@@ -68,17 +69,42 @@ export const saveLogo = mutation({
     const logoUrl = await ctx.storage.getUrl(args.storageId);
     if (!logoUrl) throw new Error("Failed to retrieve uploaded file URL.");
 
+    const permanentUrl = args.baseUrl
+      ? `${args.baseUrl.replace(/\/$/, "")}/api/storage/${args.storageId}`
+      : logoUrl;
+
     const configs = await ctx.db.query("siteConfig").collect();
     if (configs.length === 0) {
       await ctx.db.insert("siteConfig", {
-        logoUrl,
+        logoUrl: permanentUrl,
+        logoStorageId: args.storageId,
         logoText: "1DORUZ",
         primaryColor: "#C5A059",
         siteTitle: "1DORUZ RECORDS",
         siteDescription: "",
       });
     } else {
-      await ctx.db.patch(configs[0]._id, { logoUrl });
+      await ctx.db.patch(configs[0]._id, {
+        logoUrl: permanentUrl,
+        logoStorageId: args.storageId,
+      });
+    }
+  },
+});
+
+export const clearLogo = mutation({
+  args: { callerId: v.id("users") },
+  handler: async (ctx, args) => {
+    const caller = await ctx.db.get(args.callerId);
+    if (!caller || caller.role !== "admin") {
+      throw new Error("Only admins can update the logo.");
+    }
+    const configs = await ctx.db.query("siteConfig").collect();
+    if (configs.length > 0) {
+      await ctx.db.patch(configs[0]._id, {
+        logoUrl: undefined,
+        logoStorageId: undefined,
+      });
     }
   },
 });

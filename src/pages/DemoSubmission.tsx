@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { motion } from 'motion/react';
 import { Send, Music4, User, Mail, Link as LinkIcon, FileText, Upload, X, Music } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { storageUrl, uploadFile } from '../lib/uploads';
 import { useMutation } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 
@@ -16,6 +17,7 @@ export default function DemoSubmission() {
   const [bio, setBio] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const submitDemo = useMutation(api.demos.create);
+  const generateUploadUrl = useMutation(api.uploads.generateUploadUrl);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -50,7 +52,14 @@ export default function DemoSubmission() {
     setIsSubmitting(true);
     
     try {
-      await submitDemo({ artistName, email, demoUrl: demoUrl || undefined, bio });
+      let audioFileUrl: string | undefined;
+      if (file) {
+        const uploadUrl = await generateUploadUrl({});
+        const storageId = await uploadFile(file, uploadUrl);
+        audioFileUrl = storageUrl(storageId);
+      }
+
+      await submitDemo({ artistName, email, demoUrl: demoUrl || undefined, audioFileUrl, bio });
       setSubmitted(true);
       setArtistName('');
       setEmail('');

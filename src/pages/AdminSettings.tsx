@@ -16,13 +16,13 @@ import {
   Sun
 } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { storageUrl, uploadFile } from '../lib/uploads';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 
 export default function AdminSettings() {
   const [activeSection, setActiveSection] = useState('cosmetic');
   const [typographyPair, setTypographyPair] = useState('heritage');
-  const [customLogo, setCustomLogo] = useState<string | null>(localStorage.getItem('platform_logo'));
 
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -32,8 +32,12 @@ export default function AdminSettings() {
   const [logoText, setLogoText] = useState('1DORUZ');
   const config = useQuery(api.config.get);
   const updateConfig = useMutation(api.config.update);
+  const generateUploadUrl = useMutation(api.config.generateUploadUrl);
+  const saveLogo = useMutation(api.config.saveLogo);
+  const clearLogo = useMutation(api.config.clearLogo);
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   const callerId = user._id || user.id;
+  const logoPreview = config?.logoUrl || (config?.logoStorageId ? storageUrl(config.logoStorageId) : null);
 
   useEffect(() => {
     if (config) {
@@ -44,17 +48,32 @@ export default function AdminSettings() {
     }
   }, [config]);
 
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setCustomLogo(url);
-      localStorage.setItem('platform_logo', url);
+    if (!file) return;
+    if (!callerId) {
+      alert('Sign in again as admin to upload files.');
+      return;
+    }
+    try {
+      const uploadUrl = await generateUploadUrl({ callerId });
+      const storageId = (await uploadFile(file, uploadUrl)) as any;
+      await saveLogo({ callerId, storageId, baseUrl: import.meta.env.VITE_CONVEX_URL });
+      e.target.value = '';
+    } catch (err) {
+      console.error('Logo upload failed:', err);
+      alert('Logo upload failed. Check that you are signed in as admin.');
     }
   };
 
-  const resetLogo = () => {
-    setCustomLogo(null);
+  const resetLogo = async () => {
+    if (callerId) {
+      try {
+        await clearLogo({ callerId });
+      } catch (err) {
+        console.error('Failed to reset logo:', err);
+      }
+    }
     localStorage.removeItem('platform_logo');
   };
 
@@ -139,7 +158,7 @@ export default function AdminSettings() {
                         <label className="text-[10px] font-bold uppercase tracking-widest text-brand-red-500">Platform Logo</label>
                         <div className="flex items-center gap-6">
                            <div className="w-20 h-20 bg-[var(--background)] border border-[var(--border)] overflow-hidden rounded-lg flex items-center justify-center group relative">
-                              <img src={customLogo || "/src/assets/images/logo.jpg"} alt="Platform Logo" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" />
+                              <img src={logoPreview || "/src/assets/images/logo.jpg"} alt="Platform Logo" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" />
                               <label className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
                                  <Monitor size={16} className="text-white" />
                                  <input type="file" className="hidden" accept="image/*" onChange={handleLogoUpload} />

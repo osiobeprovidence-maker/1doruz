@@ -15,10 +15,14 @@ import {
   Info
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { storageUrl, uploadFile } from '../lib/uploads';
 
 export default function AdminAddEvent() {
   const navigate = useNavigate();
   const createEvent = useMutation(api.events.create);
+  const generateUploadUrl = useMutation(api.uploads.generateUploadUrl);
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const callerId = user._id || user.id;
   const [title, setTitle] = useState('');
   const [date, setDate] = useState('');
   const [location, setLocation] = useState('');
@@ -26,12 +30,22 @@ export default function AdminAddEvent() {
   const [ticketLink, setTicketLink] = useState('');
   const [ticketInfo, setTicketInfo] = useState('');
   const [imageUrl, setImageUrl] = useState('');
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
+
+    let resolvedImageUrl = imageUrl;
+    let resolvedHeroImageStorageId: string | undefined;
+    if (imageFile) {
+      const uploadUrl = await generateUploadUrl({ callerId });
+      const storageId = await uploadFile(imageFile, uploadUrl);
+      resolvedHeroImageStorageId = storageId;
+      resolvedImageUrl = storageUrl(storageId);
+    }
 
     await createEvent({
       title,
@@ -44,8 +58,9 @@ export default function AdminAddEvent() {
       ticketLink,
       officialTicketUrl: ticketLink,
       ticketInfo: ticketInfo || undefined,
-      imageUrl: imageUrl || 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80&w=1200',
-      heroImage: imageUrl || 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80&w=1200',
+      imageUrl: resolvedImageUrl || 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80&w=1200',
+      heroImage: resolvedImageUrl || 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80&w=1200',
+      heroImageStorageId: resolvedHeroImageStorageId,
       slug: title?.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || '',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -140,7 +155,10 @@ export default function AdminAddEvent() {
                             accept="image/*"
                             onChange={(e) => {
                               const file = e.target.files?.[0];
-                              if (file) setImageUrl(URL.createObjectURL(file));
+                              if (file) {
+                                setImageFile(file);
+                                setImageUrl(URL.createObjectURL(file));
+                              }
                             }}
                             className="absolute inset-0 opacity-0 cursor-pointer" 
                           />

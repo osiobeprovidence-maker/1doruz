@@ -1,17 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Instagram, Twitter, Youtube, Disc, Mail, Music } from 'lucide-react';
+import { useQuery } from 'convex/react';
+import { api } from '../../convex/_generated/api';
 
 export default function Footer() {
-  const [customLogo, setCustomLogo] = useState<string | null>(localStorage.getItem('platform_logo'));
-
-  useEffect(() => {
-    const handleStorageChange = () => {
-      setCustomLogo(localStorage.getItem('platform_logo'));
-    };
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
+  const config = useQuery(api.config.get);
+  const customLogo = config?.logoUrl || null;
 
   return (
     <footer className="border-t pt-16 pb-12" style={{ backgroundColor: 'var(--background)', borderColor: 'var(--border)' }}>

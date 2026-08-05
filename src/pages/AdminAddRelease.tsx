@@ -16,6 +16,7 @@ import {
   Image as ImageIcon
 } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { storageUrl, uploadFile } from '../lib/uploads';
 
 export default function AdminAddRelease() {
   const navigate = useNavigate();
@@ -23,6 +24,7 @@ export default function AdminAddRelease() {
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [releaseType, setReleaseType] = useState('Single');
   const [coverArt, setCoverArt] = useState('');
+  const [coverFile, setCoverFile] = useState<File | null>(null);
   const [title, setTitle] = useState('');
   const [artistId, setArtistId] = useState('');
   const [artistName, setArtistName] = useState('');
@@ -43,18 +45,32 @@ export default function AdminAddRelease() {
   });
 
   const createRelease = useMutation(api.releases.create);
+  const generateUploadUrl = useMutation(api.uploads.generateUploadUrl);
   const artists = useQuery(api.artists.list) || [];
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const callerId = user._id || user.id;
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
     try {
+      let resolvedCoverArtUrl = coverArtUrl || coverArt;
+      let resolvedCoverArtStorageId: string | undefined;
+
+      if (coverFile) {
+        const uploadUrl = await generateUploadUrl({ callerId });
+        const storageId = await uploadFile(coverFile, uploadUrl);
+        resolvedCoverArtStorageId = storageId;
+        resolvedCoverArtUrl = storageUrl(storageId);
+      }
+
       await createRelease({
         title,
         artistId: artistId as any,
         artistName,
         releaseDate,
-        coverArtUrl: coverArtUrl || coverArt,
+        coverArtUrl: resolvedCoverArtUrl,
+        coverArtStorageId: resolvedCoverArtStorageId,
         type: releaseType,
         streamingLinks,
         featured
@@ -102,7 +118,10 @@ export default function AdminAddRelease() {
                         accept="image/*"
                         onChange={(e) => {
                           const file = e.target.files?.[0];
-                          if (file) setCoverArt(URL.createObjectURL(file));
+                          if (file) {
+                            setCoverFile(file);
+                            setCoverArt(URL.createObjectURL(file));
+                          }
                         }}
                         className="absolute inset-0 opacity-0 cursor-pointer" 
                       />
@@ -117,7 +136,10 @@ export default function AdminAddRelease() {
                         accept="image/*"
                         onChange={(e) => {
                           const file = e.target.files?.[0];
-                          if (file) setCoverArt(URL.createObjectURL(file));
+                          if (file) {
+                            setCoverFile(file);
+                            setCoverArt(URL.createObjectURL(file));
+                          }
                         }}
                         className="absolute inset-0 opacity-0 cursor-pointer" 
                       />

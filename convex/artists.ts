@@ -30,6 +30,7 @@ export const create = mutation({
     name: v.string(),
     bio: v.string(),
     imageUrl: v.string(),
+    imageStorageId: v.optional(v.string()),
     genres: v.array(v.string()),
     socialLinks: v.object({
       instagram: v.optional(v.string()),
@@ -75,6 +76,7 @@ export const update = mutation({
     name: v.optional(v.string()),
     bio: v.optional(v.string()),
     imageUrl: v.optional(v.string()),
+    imageStorageId: v.optional(v.string()),
     genres: v.optional(v.array(v.string())),
     socialLinks: v.optional(v.object({
       instagram: v.optional(v.string()),

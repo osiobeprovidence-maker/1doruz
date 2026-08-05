@@ -29,6 +29,7 @@ import {
   Briefcase
 } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { storageUrl, uploadFile } from '../lib/uploads';
 
 interface Platform {
   id: string;
@@ -110,6 +111,11 @@ export default function AdminAddArtist() {
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const createArtist = useMutation(api.artists.create);
+  const generateUploadUrl = useMutation(api.uploads.generateUploadUrl);
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const callerId = user._id || user.id;
+  const [profileFile, setProfileFile] = useState<File | null>(null);
+  const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
   const [socialLinks, setSocialLinks] = useState<Record<string, string>>({});
   const [openSections, setOpenSections] = useState<string[]>(['social']);
   const [videos, setVideos] = useState<{title: string, url: string}[]>([{title: '', url: ''}]);
@@ -132,14 +138,14 @@ export default function AdminAddArtist() {
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'gallery' | 'video' | 'profile') => {
     const file = e.target.files?.[0];
     if (file) {
-      const url = URL.createObjectURL(file);
       if (type === 'gallery') {
-        setGallery([...gallery, url]);
+        setGalleryFiles([...galleryFiles, file]);
+        setGallery([...gallery, URL.createObjectURL(file)]);
       } else if (type === 'profile') {
-        setImageUrl(url);
+        setProfileFile(file);
+        setImageUrl(URL.createObjectURL(file));
       } else if (type === 'video') {
-        // Create a new video entry with the local blob URL
-        setVideos([...videos.filter(v => v.title || v.url), { title: file.name.split('.')[0], url: url }]);
+        setVideos([...videos.filter(v => v.title || v.url), { title: file.name.split('.')[0], url: '' }]);
       }
     }
   };
@@ -168,14 +174,36 @@ export default function AdminAddArtist() {
     setIsSaving(true);
 
     try {
+      let resolvedImageUrl = imageUrl;
+      let resolvedImageStorageId: string | undefined;
+      let resolvedGallery: string[] | undefined;
+
+      if (profileFile) {
+        const uploadUrl = await generateUploadUrl({ callerId });
+        const storageId = await uploadFile(profileFile, uploadUrl);
+        resolvedImageStorageId = storageId;
+        resolvedImageUrl = storageUrl(storageId);
+      }
+
+      if (galleryFiles.length > 0) {
+        const urls: string[] = [];
+        for (const galleryFile of galleryFiles) {
+          const uploadUrl = await generateUploadUrl({ callerId });
+          const storageId = await uploadFile(galleryFile, uploadUrl);
+          urls.push(storageUrl(storageId));
+        }
+        resolvedGallery = urls;
+      }
+
       await createArtist({
         name,
         bio,
-        imageUrl: imageUrl || 'https://images.unsplash.com/photo-1557672172-298e090bd0f1?auto=format&fit=crop&q=80&w=1200',
+        imageUrl: resolvedImageUrl || 'https://images.unsplash.com/photo-1557672172-298e090bd0f1?auto=format&fit=crop&q=80&w=1200',
+        imageStorageId: resolvedImageStorageId,
         genres,
         socialLinks,
         videos: videos.filter(v => v.title && v.url).map((v, i) => ({ id: `v-${Date.now()}-${i}`, title: v.title, url: v.url })),
-        gallery: gallery.length > 0 ? gallery : undefined,
+        gallery: resolvedGallery,
         featured: false,
       });
 
@@ -454,8 +482,9 @@ export default function AdminAddArtist() {
                 <Plus size={14} /> Add Image
                 <input type="file" className="hidden" accept="image/*" multiple onChange={(e) => {
                   const files = Array.from(e.target.files || []) as File[];
-                  const urls = files.map(f => URL.createObjectURL(f));
-                  setGallery([...gallery, ...urls]);
+                  setGalleryFiles([...galleryFiles, ...files]);
+                  setGallery([...gallery, ...files.map(f => URL.createObjectURL(f))]);
+                  e.target.value = '';
                 }} />
               </label>
             </div>
