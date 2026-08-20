@@ -2,6 +2,7 @@ import { motion } from 'motion/react';
 import { Maximize2, Play } from 'lucide-react';
 import { useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
+import SafeImage from '../components/SafeImage';
 
 export default function Gallery() {
   const items = useQuery(api.gallery.list) || [];
@@ -25,11 +26,11 @@ export default function Gallery() {
                viewport={{ once: true }}
                className="group relative overflow-hidden break-inside-avoid rounded-2xl cursor-pointer"
              >
-               <img
-                 src={item.url}
-                 alt={item.caption}
-                 className="w-full transition-transform duration-700 group-hover:scale-105"
-               />
+                <SafeImage
+                  src={item.url}
+                  alt={item.caption}
+                  className="w-full transition-transform duration-700 group-hover:scale-105"
+                />
                <div className="absolute inset-0 bg-[var(--card)]/60 opacity-0 transition-opacity group-hover:opacity-100 flex flex-col justify-end p-8">
                   <div className="flex items-center justify-between mb-2">
                     <span className="bg-brand-red-500 p-2 rounded-lg text-[var(--background)]">

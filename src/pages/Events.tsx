@@ -2,6 +2,7 @@ import { motion } from 'motion/react';
 import { useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import { MapPin, Calendar, Clock, Ticket, Info } from 'lucide-react';
+import SafeImage from '../components/SafeImage';
 
 export default function Events() {
   const events = useQuery(api.events.list) || [];
@@ -28,7 +29,7 @@ export default function Events() {
                className="group luxury-card grid items-center gap-8 p-6 lg:grid-cols-[200px_1fr_250px_200px] text-center lg:text-left relative overflow-hidden"
              >
                <div className="h-40 overflow-hidden rounded-xl">
-                  <img src={event.imageUrl || event.heroImage} alt={event.title} className="h-full w-full object-cover transition-transform group-hover:scale-110" />
+                   <SafeImage src={event.imageUrl || event.heroImage} alt={event.title} className="h-full w-full object-cover transition-transform group-hover:scale-110" />
                </div>
                
                <div className="space-y-4">

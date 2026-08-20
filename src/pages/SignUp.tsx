@@ -6,6 +6,7 @@ import { useQuery, useMutation } from 'convex/react';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { api } from '../../convex/_generated/api';
 import { auth } from '../lib/firebase';
+import { DEFAULT_LOGO } from '../lib/brand';
 
 export default function SignUp() {
   const [name, setName] = useState('');
@@ -73,7 +74,7 @@ export default function SignUp() {
           <div className="text-center mb-10">
             <Link to="/" className="inline-flex items-center gap-3 mb-6">
               <div className="w-20 h-20 bg-[var(--background)] border border-[var(--border)] overflow-hidden rounded-lg flex items-center justify-center">
-                <img src={customLogo || "/src/assets/images/logo.jpg"} alt="1DORUZ Logo" className="w-full h-full object-cover grayscale" />
+                <img src={customLogo || DEFAULT_LOGO} alt="1DORUZ Logo" className="w-full h-full object-cover grayscale" />
               </div>
             </Link>
             <h1 className="font-serif text-3xl font-bold text-[var(--foreground)] uppercase tracking-wider">Join 1DORUZ</h1>

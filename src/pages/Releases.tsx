@@ -2,6 +2,7 @@ import { motion } from 'motion/react';
 import { useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import { Search, Filter, Play, Music2, Music, Disc, Radio, ExternalLink, Youtube } from 'lucide-react';
+import SafeImage from '../components/SafeImage';
 
 export default function Releases() {
   const releases = useQuery(api.releases.list) || [];
@@ -39,11 +40,11 @@ export default function Releases() {
                className="group flex flex-col"
              >
                <div className="relative aspect-square overflow-hidden rounded-lg bg-[var(--background)] shadow-2xl">
-                 <img
-                   src={release.coverArtUrl}
-                   alt={release.title}
-                   className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
-                 />
+                  <SafeImage
+                    src={release.coverArtUrl}
+                    alt={release.title}
+                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
                  <div className="absolute inset-0 flex flex-col items-center justify-center p-6 bg-[var(--card)]/80 opacity-0 transition-opacity group-hover:opacity-100 backdrop-blur-md">
                    <div className="flex items-center gap-4 mb-8">
                      <button className="rounded-full bg-brand-red-500 p-4 text-[var(--background)] hover:bg-[var(--foreground)] transition-all shadow-xl">

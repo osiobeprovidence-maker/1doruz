@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Instagram, Twitter, Youtube, Disc, Mail, Music } from 'lucide-react';
 import { useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
+import { DEFAULT_LOGO } from '../lib/brand';
 
 export default function Footer() {
   const config = useQuery(api.config.get);
@@ -15,7 +16,7 @@ export default function Footer() {
           <div className="space-y-6 max-w-sm">
             <Link to="/" className="flex items-center gap-3">
               <div className="w-10 h-10 overflow-hidden">
-                <img src={customLogo || "/src/assets/images/logo.jpg"} alt="1DORUZ Logo" className="w-full h-full object-cover" />
+                <img src={customLogo || DEFAULT_LOGO} alt="1DORUZ Logo" className="w-full h-full object-cover" />
               </div>
               <span className="font-serif text-xl font-bold tracking-[0.1em]" style={{ color: 'var(--foreground)' }}>
                 1DORUZ <span className="text-brand-red-500 font-light">RECORDS</span>

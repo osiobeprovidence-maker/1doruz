@@ -17,13 +17,16 @@ import { useNavigate } from 'react-router-dom';
 import { cn } from '../lib/utils';
 import { useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
+import SafeImage from '../components/SafeImage';
 
 export default function UserProfile() {
   const navigate = useNavigate();
-  const userName = localStorage.getItem('user') || 'Member';
-  const userEmail = userName;
+  const stored = JSON.parse(localStorage.getItem('user') || '{}');
+  const userName = stored.name || stored.email || 'Member';
+  const userEmail = stored.email;
+  const currentUser = useQuery(api.users.getByEmail, userEmail ? { email: userEmail } : 'skip');
   const userDemos = useQuery(api.demos.getByEmail, userEmail ? { email: userEmail } : 'skip') || [];
-  const [activeView, setActiveView] = useState('overview'); // 'overview' or 'settings'
+  const [activeView, setActiveView] = useState('overview');
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
@@ -34,12 +37,15 @@ export default function UserProfile() {
 
   const [accountData, setAccountData] = useState({
     name: userName.split('@')[0],
-    email: userName,
+    email: userEmail || '',
     age: '24',
     distributionAreas: 'Global, North America, Europe',
     bio: 'Visionary artist focused on melodic techno and cinematic soundscapes.',
     twoFactor: true
   });
+
+  const displayName = currentUser?.name || accountData.name;
+  const avatarUrl = currentUser?.imageUrl || null;
 
 
 
@@ -70,13 +76,22 @@ export default function UserProfile() {
             <div className="luxury-card p-6 sm:p-10 text-center">
               <div className="relative inline-block mb-6">
                 <div className="w-20 h-20 sm:w-24 sm:h-24 bg-[var(--background)] rounded-full flex items-center justify-center border border-[var(--border)] overflow-hidden">
-                  <User size={32} className="text-[var(--muted)]" />
+                  {avatarUrl ? (
+                    <SafeImage
+                      src={avatarUrl}
+                      alt={displayName}
+                      className="w-full h-full object-cover"
+                      showPlaceholder
+                    />
+                  ) : (
+                    <User size={32} className="text-[var(--muted)]" />
+                  )}
                 </div>
                 <button className="absolute bottom-0 right-0 p-2 bg-brand-red-500 rounded-full text-[var(--background)] hover:bg-brand-red-400 transition-colors shadow-xl">
                   <Camera size={12} />
                 </button>
               </div>
-              <h2 className="text-lg sm:text-xl font-serif font-bold text-[var(--foreground)] uppercase tracking-tight">{accountData.name}</h2>
+              <h2 className="text-lg sm:text-xl font-serif font-bold text-[var(--foreground)] uppercase tracking-tight">{displayName}</h2>
               <p className="text-[9px] sm:text-[10px] text-[var(--muted)] uppercase tracking-widest font-mono mt-1 italic">Verified 1DORUZ Artist</p>
               
               <div className="mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-[var(--border)] space-y-3 sm:space-y-4">

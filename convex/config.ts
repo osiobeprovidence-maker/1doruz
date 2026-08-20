@@ -59,19 +59,14 @@ export const saveLogo = mutation({
   args: {
     callerId: v.id("users"),
     storageId: v.id("_storage"),
-    baseUrl: v.optional(v.string()),
+    baseUrl: v.string(),
   },
   handler: async (ctx, args) => {
     const caller = await ctx.db.get(args.callerId);
     if (!caller || caller.role !== "admin") {
       throw new Error("Only admins can update the logo.");
     }
-    const logoUrl = await ctx.storage.getUrl(args.storageId);
-    if (!logoUrl) throw new Error("Failed to retrieve uploaded file URL.");
-
-    const permanentUrl = args.baseUrl
-      ? `${args.baseUrl.replace(/\/$/, "")}/api/storage/${args.storageId}`
-      : logoUrl;
+    const permanentUrl = `${args.baseUrl.replace(/\/$/, "")}/api/storage/${args.storageId}`;
 
     const configs = await ctx.db.query("siteConfig").collect();
     if (configs.length === 0) {

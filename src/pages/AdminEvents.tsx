@@ -13,6 +13,7 @@ import {
   Search
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import SafeImage from '../components/SafeImage';
 
 export default function AdminEvents() {
   const events = useQuery(api.events.list) || [];
@@ -59,7 +60,7 @@ export default function AdminEvents() {
             >
               <div className="p-6 sm:p-10 flex flex-col lg:flex-row lg:items-center gap-10">
                 <div className="w-full lg:w-48 h-32 overflow-hidden rounded-lg shrink-0">
-                  <img src={event.imageUrl || event.heroImage} alt="" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" />
+                   <SafeImage src={event.imageUrl || event.heroImage} alt="" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" />
                 </div>
                 
                 <div className="flex-1 space-y-4">

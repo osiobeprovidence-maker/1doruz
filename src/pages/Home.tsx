@@ -6,6 +6,7 @@ import { LABEL_STATS } from '../lib/mockData';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowUpRight, Music2, Globe, Disc3, Mic2, Ticket } from 'lucide-react';
 import { formatDate } from '../lib/utils';
+import SafeImage from '../components/SafeImage';
 
 export default function Home() {
   const navigate = useNavigate();
@@ -68,7 +69,7 @@ export default function Home() {
                 onClick={() => navigate(`/artists/${artist._id}`)}
               >
                 <div className="aspect-[4/5] overflow-hidden transition-all duration-700">
-                  <img src={artist.imageUrl} alt={artist.name} className="h-full w-full object-cover" />
+                  <SafeImage src={artist.imageUrl} alt={artist.name} className="h-full w-full object-cover" />
                 </div>
                 <div className="mt-8">
                    <span className="text-[10px] text-brand-red-500 uppercase tracking-tighter">Featured Artist</span>
@@ -99,7 +100,7 @@ export default function Home() {
           {releases.slice(0, 3).map((release) => (
             <div key={release._id} className="p-8 border-r last:border-r-0 group cursor-pointer hover:bg-brand-red-500/[0.05] transition-colors" style={{ borderColor: 'var(--border)' }}>
               <div className="relative aspect-square transition-all" style={{ backgroundColor: 'var(--card)' }}>
-                 <img src={release.coverArtUrl} alt={release.title} className="h-full w-full object-cover" />
+                 <SafeImage src={release.coverArtUrl} alt={release.title} className="h-full w-full object-cover" />
                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
                    <div className="bg-brand-red-500 p-4 text-[var(--background)]"><Music2 size={24} /></div>
                  </div>
@@ -122,7 +123,7 @@ export default function Home() {
             {newsArticles.slice(0, 2).map(article => (
               <div key={article._id} className="group cursor-pointer flex flex-col sm:flex-row gap-8 items-center">
                 <div className="h-32 w-full sm:w-48 overflow-hidden transition-all flex-shrink-0">
-                  <img src={article.imageUrl} alt="" className="h-full w-full object-cover" />
+                  <SafeImage src={article.imageUrl} alt="" className="h-full w-full object-cover" />
                 </div>
                 <div>
                   <h3 className="text-2xl font-serif italic group-hover:text-brand-red-500 transition-colors uppercase leading-none" style={{ color: 'var(--foreground)' }}>{article.title}</h3>

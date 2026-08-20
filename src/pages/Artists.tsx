@@ -3,6 +3,7 @@ import { useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Instagram, Music2, Youtube, Disc } from 'lucide-react';
+import SafeImage from '../components/SafeImage';
 
 export default function Artists() {
   const artists = useQuery(api.artists.list) || [];
@@ -26,11 +27,11 @@ export default function Artists() {
                className="group flex flex-col"
              >
                 <Link to={`/artists/${artist._id}`} className="relative h-[500px] overflow-hidden rounded-sm">
-                 <img
-                   src={artist.imageUrl}
-                   alt={artist.name}
-                   className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                 />
+                  <SafeImage
+                    src={artist.imageUrl}
+                    alt={artist.name}
+                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 transition-opacity group-hover:opacity-80" />
                  <div className="absolute bottom-6 left-6 right-6">
                    <div className="flex flex-wrap gap-2">

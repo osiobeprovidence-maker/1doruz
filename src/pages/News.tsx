@@ -2,6 +2,7 @@ import { useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import { motion } from 'motion/react';
 import { Calendar, User, ArrowRight } from 'lucide-react';
+import SafeImage from '../components/SafeImage';
 
 export default function News() {
   const articles = useQuery(api.news.list) || [];
@@ -24,11 +25,11 @@ export default function News() {
                className="grid gap-12 lg:grid-cols-2 group cursor-pointer"
              >
                <div className="relative h-96 overflow-hidden rounded-2xl">
-                 <img
-                   src={article.imageUrl}
-                   alt={article.title}
-                   className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                 />
+                  <SafeImage
+                    src={article.imageUrl}
+                    alt={article.title}
+                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
                  <div className="absolute top-6 left-6">
                    <span className="bg-brand-red-500 px-4 py-1 text-[10px] font-bold uppercase tracking-widest text-[var(--background)] rounded-full">
                      Label Update

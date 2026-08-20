@@ -4,6 +4,7 @@ import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import { Plus, Search, Filter, Play, Edit, Trash2, ShoppingBag } from 'lucide-react';
 import { formatDate } from '../lib/utils';
+import SafeImage from '../components/SafeImage';
 
 import { Link } from 'react-router-dom';
 
@@ -52,7 +53,7 @@ export default function AdminReleases() {
                 className="p-5 sm:p-8 flex flex-col md:flex-row items-center gap-6 sm:gap-8 group hover:opacity-90/[0.02] transition-colors"
               >
                 <div className="h-24 w-24 sm:h-32 sm:w-32 relative flex-shrink-0 rounded-sm overflow-hidden border border-[var(--border)]">
-                  <img src={release.coverArtUrl} alt="" className="h-full w-full object-cover shadow-2xl transition-transform duration-700 group-hover:scale-110" />
+                   <SafeImage src={release.coverArtUrl} alt="" className="h-full w-full object-cover shadow-2xl transition-transform duration-700 group-hover:scale-110" />
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                     <Play size={24} className="text-[var(--foreground)]" fill="currentColor" />
                   </div>

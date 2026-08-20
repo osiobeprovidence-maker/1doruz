@@ -22,6 +22,7 @@ import {
   Briefcase,
   Link as LinkIcon
 } from 'lucide-react';
+import SafeImage from '../components/SafeImage';
 
 const socialIcons: Record<string, React.ReactNode> = {
   instagram: <Instagram size={18} />,
@@ -86,7 +87,7 @@ export default function ArtistProfile() {
     <div className="pb-32">
       {/* Header Section */}
       <div className="relative h-[60vh] min-h-[500px] w-full">
-        <img
+        <SafeImage
           src={artist.imageUrl}
           alt={artist.name}
           className="h-full w-full object-cover"
@@ -145,7 +146,7 @@ export default function ArtistProfile() {
                       viewport={{ once: true }}
                       className="aspect-square bg-[var(--card)] rounded-xl overflow-hidden border border-[var(--border)] cursor-pointer group"
                     >
-                      <img 
+                      <SafeImage 
                         src={img} 
                         alt={`${artist.name} Gallery ${i + 1}`} 
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 grayscale group-hover:grayscale-0"
@@ -161,7 +162,7 @@ export default function ArtistProfile() {
               <div className="grid gap-8 sm:grid-cols-2">
                 {artistReleases.map(release => (
                   <div key={release._id} className="luxury-card flex gap-6 p-6">
-                    <img src={release.coverArtUrl} alt={release.title} className="h-32 w-32 rounded-lg object-cover" />
+                    <SafeImage src={release.coverArtUrl} alt={release.title} className="h-32 w-32 rounded-lg object-cover" />
                     <div className="flex flex-col justify-center">
                       <h3 className="font-serif text-xl font-bold text-[var(--foreground)]">{release.title}</h3>
                       <p className="text-xs uppercase tracking-widest text-[var(--muted)] mt-1">{release.type} | {new Date(release.releaseDate).getFullYear()}</p>

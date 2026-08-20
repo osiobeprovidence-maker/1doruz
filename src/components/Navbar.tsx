@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import { cn } from '../lib/utils';
+import { DEFAULT_LOGO } from '../lib/brand';
 
 const USER_LINKS = [
   { name: 'Artists', href: '/artists' },
@@ -78,7 +79,7 @@ export default function Navbar() {
           
           <Link to="/" className="flex items-center gap-3 shrink-0 group">
             <div className="w-8 h-8 overflow-hidden">
-              <img src={customLogo || "/src/assets/images/logo.jpg"} alt="1DORUZ Logo" className="w-full h-full object-cover" />
+              <img src={customLogo || DEFAULT_LOGO} alt="1DORUZ Logo" className="w-full h-full object-cover" />
             </div>
             <span className="font-serif text-[16px] font-bold tracking-[0.1em] text-[var(--foreground)] whitespace-nowrap uppercase">
               1DORUZ <span className="text-brand-red-500 font-light">RECORDS</span>
@@ -96,12 +97,12 @@ export default function Navbar() {
         {/* Desktop Logo Layout */}
         <Link to="/" className="hidden md:flex items-center gap-4 shrink-0 group">
           <div className="w-10 h-10 overflow-hidden group-hover:scale-105 transition-transform">
-            <img src={customLogo || "/src/assets/images/logo.jpg"} alt="1DORUZ Logo" className="w-full h-full object-cover" />
-          </div>
-          <span className="font-serif text-2xl font-bold tracking-[0.05em] text-[var(--foreground)] whitespace-nowrap">
-            1DORUZ <span className="text-brand-red-500 font-light">RECORDS</span>
-          </span>
-        </Link>
+              <img src={customLogo || DEFAULT_LOGO} alt="1DORUZ Logo" className="w-full h-full object-cover" />
+            </div>
+            <span className="font-serif text-2xl font-bold tracking-[0.05em] text-[var(--foreground)] whitespace-nowrap">
+              1DORUZ <span className="text-brand-red-500 font-light">RECORDS</span>
+            </span>
+          </Link>
 
         {/* Desktop Nav */}
         <div className="hidden items-center gap-10 md:flex">

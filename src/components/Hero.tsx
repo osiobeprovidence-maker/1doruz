@@ -1,6 +1,7 @@
 import { motion } from 'motion/react';
 import { Play, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { DEFAULT_HERO } from '../lib/brand';
 
 export default function Hero() {
   return (
@@ -55,7 +56,7 @@ export default function Hero() {
               initial={{ scale: 1.1, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ duration: 1.5 }}
-              src="/src/assets/images/hero.jpg"
+              src={DEFAULT_HERO}
               className="h-full w-full object-cover transition-transform duration-[4s] group-hover:scale-110"
               alt="Music Label Atmosphere"
               id="hero-main-image"

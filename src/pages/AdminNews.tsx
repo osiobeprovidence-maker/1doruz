@@ -3,6 +3,7 @@ import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import { motion } from 'motion/react';
 import { Edit, Trash2, Calendar, User, Eye, FilePlus } from 'lucide-react';
+import SafeImage from '../components/SafeImage';
 
 import { Link } from 'react-router-dom';
 
@@ -39,7 +40,7 @@ export default function AdminNews() {
               className="luxury-card overflow-hidden grid lg:grid-cols-[400px_1fr] group"
             >
               <div className="h-64 lg:h-full relative overflow-hidden">
-                <img src={article.imageUrl} alt="" className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                 <SafeImage src={article.imageUrl} alt="" className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-700" />
                 <div className="absolute top-6 left-6 flex gap-2">
                    <span className="bg-brand-red-500 text-black px-3 py-1 text-[9px] font-bold uppercase tracking-widest">Live</span>
                 </div>
