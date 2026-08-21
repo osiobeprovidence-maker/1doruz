@@ -20,7 +20,7 @@ export const update = mutation({
   },
   handler: async (ctx, args) => {
     const caller = await ctx.db.get(args.callerId);
-    if (!caller || caller.role !== "admin") {
+    if (!caller || (caller.role !== "admin" && caller.role !== "super_admin")) {
       throw new Error("Only admins can update site configuration.");
     }
 
@@ -44,17 +44,6 @@ export const update = mutation({
   },
 });
 
-export const generateUploadUrl = mutation({
-  args: { callerId: v.id("users") },
-  handler: async (ctx, args) => {
-    const caller = await ctx.db.get(args.callerId);
-    if (!caller || caller.role !== "admin") {
-      throw new Error("Only admins can upload files.");
-    }
-    return await ctx.storage.generateUploadUrl();
-  },
-});
-
 export const saveLogo = mutation({
   args: {
     callerId: v.id("users"),
@@ -63,7 +52,7 @@ export const saveLogo = mutation({
   },
   handler: async (ctx, args) => {
     const caller = await ctx.db.get(args.callerId);
-    if (!caller || caller.role !== "admin") {
+    if (!caller || (caller.role !== "admin" && caller.role !== "super_admin")) {
       throw new Error("Only admins can update the logo.");
     }
     const permanentUrl = `${args.baseUrl.replace(/\/$/, "")}/api/storage/${args.storageId}`;
@@ -91,12 +80,16 @@ export const clearLogo = mutation({
   args: { callerId: v.id("users") },
   handler: async (ctx, args) => {
     const caller = await ctx.db.get(args.callerId);
-    if (!caller || caller.role !== "admin") {
+    if (!caller || (caller.role !== "admin" && caller.role !== "super_admin")) {
       throw new Error("Only admins can update the logo.");
     }
     const configs = await ctx.db.query("siteConfig").collect();
     if (configs.length > 0) {
-      await ctx.db.patch(configs[0]._id, {
+      const config = configs[0];
+      if (config.logoStorageId) {
+        await ctx.storage.delete(config.logoStorageId);
+      }
+      await ctx.db.patch(config._id, {
         logoUrl: undefined,
         logoStorageId: undefined,
       });

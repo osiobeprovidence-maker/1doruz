@@ -17,7 +17,7 @@ export default function DemoSubmission() {
   const [bio, setBio] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const submitDemo = useMutation(api.demos.create);
-  const generateUploadUrl = useMutation(api.uploads.generateUploadUrl);
+  const generateUploadUrl = useMutation(api.uploads.generatePublicUploadUrl);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {

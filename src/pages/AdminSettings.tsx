@@ -16,7 +16,7 @@ import {
   Sun
 } from 'lucide-react';
 import { cn } from '../lib/utils';
-import { storageUrl, uploadFile } from '../lib/uploads';
+import { storageUrl, uploadFile, validateImageFile } from '../lib/uploads';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import { DEFAULT_LOGO } from '../lib/brand';
@@ -33,7 +33,7 @@ export default function AdminSettings() {
   const [logoText, setLogoText] = useState('1DORUZ');
   const config = useQuery(api.config.get);
   const updateConfig = useMutation(api.config.update);
-  const generateUploadUrl = useMutation(api.config.generateUploadUrl);
+  const generateUploadUrl = useMutation(api.uploads.generateUploadUrl);
   const saveLogo = useMutation(api.config.saveLogo);
   const clearLogo = useMutation(api.config.clearLogo);
   const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -52,6 +52,8 @@ export default function AdminSettings() {
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    const validation = validateImageFile(file);
+    if (!validation.valid) { alert(validation.error); return; }
     if (!callerId) {
       alert('Sign in again as admin to upload files.');
       return;
@@ -162,7 +164,7 @@ export default function AdminSettings() {
                                <img src={logoPreview || DEFAULT_LOGO} alt="Platform Logo" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" />
                               <label className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
                                  <Monitor size={16} className="text-white" />
-                                 <input type="file" className="hidden" accept="image/*" onChange={handleLogoUpload} />
+                                 <input type="file" className="hidden" accept="image/jpeg,image/png,image/webp" onChange={handleLogoUpload} />
                               </label>
                            </div>
                            <div className="space-y-2">

@@ -16,7 +16,7 @@ import {
   Image as ImageIcon
 } from 'lucide-react';
 import { cn } from '../lib/utils';
-import { storageUrl, uploadFile } from '../lib/uploads';
+import { storageUrl, uploadFile, validateImageFile } from '../lib/uploads';
 
 export default function AdminAddRelease() {
   const navigate = useNavigate();
@@ -115,10 +115,12 @@ export default function AdminAddRelease() {
                       </div>
                       <input 
                         type="file" 
-                        accept="image/*"
+                        accept="image/jpeg,image/png,image/webp"
                         onChange={(e) => {
                           const file = e.target.files?.[0];
                           if (file) {
+                            const validation = validateImageFile(file);
+                            if (!validation.valid) { alert(validation.error); return; }
                             setCoverFile(file);
                             setCoverArt(URL.createObjectURL(file));
                           }
@@ -133,10 +135,12 @@ export default function AdminAddRelease() {
                       <p className="text-[8px] text-[var(--muted)] mt-2">3000 x 3000px Minimum</p>
                       <input 
                         type="file" 
-                        accept="image/*"
+                        accept="image/jpeg,image/png,image/webp"
                         onChange={(e) => {
                           const file = e.target.files?.[0];
                           if (file) {
+                            const validation = validateImageFile(file);
+                            if (!validation.valid) { alert(validation.error); return; }
                             setCoverFile(file);
                             setCoverArt(URL.createObjectURL(file));
                           }

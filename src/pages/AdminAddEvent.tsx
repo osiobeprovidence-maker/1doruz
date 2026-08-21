@@ -15,7 +15,7 @@ import {
   Info
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { storageUrl, uploadFile } from '../lib/uploads';
+import { storageUrl, uploadFile, validateImageFile } from '../lib/uploads';
 
 export default function AdminAddEvent() {
   const navigate = useNavigate();
@@ -152,10 +152,12 @@ export default function AdminAddEvent() {
                           <span className="text-white text-sm font-bold">Click to change</span>
                           <input 
                             type="file" 
-                            accept="image/*"
+                            accept="image/jpeg,image/png,image/webp"
                             onChange={(e) => {
                               const file = e.target.files?.[0];
                               if (file) {
+                                const validation = validateImageFile(file);
+                                if (!validation.valid) { alert(validation.error); return; }
                                 setImageFile(file);
                                 setImageUrl(URL.createObjectURL(file));
                               }
@@ -171,10 +173,15 @@ export default function AdminAddEvent() {
                         <span className="text-[8px] text-[var(--muted)] mt-2">Recommended: 1200x600px</span>
                         <input 
                           type="file" 
-                          accept="image/*"
+                          accept="image/jpeg,image/png,image/webp"
                           onChange={(e) => {
                             const file = e.target.files?.[0];
-                            if (file) setImageUrl(URL.createObjectURL(file));
+                            if (file) {
+                              const validation = validateImageFile(file);
+                              if (!validation.valid) { alert(validation.error); return; }
+                              setImageFile(file);
+                              setImageUrl(URL.createObjectURL(file));
+                            }
                           }}
                           className="absolute inset-0 opacity-0 cursor-pointer" 
                         />

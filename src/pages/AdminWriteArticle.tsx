@@ -13,9 +13,11 @@ import {
   Eye,
   Type,
   AlignLeft,
-  Check
+  Check,
+  Upload
 } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { storageUrl, uploadFile, validateImageFile } from '../lib/uploads';
 
 export default function AdminWriteArticle() {
   const navigate = useNavigate();
@@ -25,15 +27,40 @@ export default function AdminWriteArticle() {
   const [excerpt, setExcerpt] = useState('');
   const [content, setContent] = useState('');
   const [imageUrl, setImageUrl] = useState('');
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState('');
   const [author, setAuthor] = useState('1DORUZ Media');
   const [publishedAt, setPublishedAt] = useState(new Date().toISOString().split('T')[0]);
   const createArticle = useMutation(api.news.create);
+  const generateUploadUrl = useMutation(api.uploads.generateUploadUrl);
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const callerId = user._id || user.id;
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const validation = validateImageFile(file);
+    if (!validation.valid) { alert(validation.error); return; }
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+  };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
     try {
-      await createArticle({ title, excerpt, content, imageUrl, author, publishedAt });
+      let finalImageUrl = imageUrl;
+      if (imageFile) {
+        const uploadUrl = await generateUploadUrl({ callerId });
+        const storageId = await uploadFile(imageFile, uploadUrl);
+        finalImageUrl = storageUrl(storageId);
+      }
+      if (!finalImageUrl) {
+        alert('Please add a feature image.');
+        setIsSaving(false);
+        return;
+      }
+      await createArticle({ title, excerpt, content, imageUrl: finalImageUrl, author, publishedAt });
       setSaveSuccess(true);
       setTimeout(() => {
         setSaveSuccess(false);
@@ -45,6 +72,8 @@ export default function AdminWriteArticle() {
       setIsSaving(false);
     }
   };
+
+  const displayImage = imagePreview || imageUrl;
 
   return (
     <div className="min-h-screen bg-[var(--background)] p-4 sm:p-8 lg:p-12">
@@ -62,12 +91,11 @@ export default function AdminWriteArticle() {
         </header>
 
         <form onSubmit={handleSave} className="space-y-12">
-          {/* Cover Image & Basic Info */}
           <section className="grid lg:grid-cols-[1fr_350px] gap-12">
              <div className="luxury-card p-6 sm:p-10 space-y-8">
                 <div className="grid gap-4">
                   <label className="text-[10px] font-bold uppercase tracking-widest text-brand-red-500">Article Title</label>
-                  <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="The Future of 1DORUZ: A New Chapter Begins" className="bg-[var(--card)] border border-[var(--border)] p-6 text-xl font-serif font-bold text-[var(--foreground)] focus:outline-none focus:border-brand-red-500 italic" />
+                  <input type="text" required value={title} onChange={(e) => setTitle(e.target.value)} placeholder="The Future of 1DORUZ: A New Chapter Begins" className="bg-[var(--card)] border border-[var(--border)] p-6 text-xl font-serif font-bold text-[var(--foreground)] focus:outline-none focus:border-brand-red-500 italic" />
                 </div>
                 <div className="grid gap-4">
                   <label className="text-[10px] font-bold uppercase tracking-widest text-[var(--muted)]">Short Excerpt</label>
@@ -76,10 +104,24 @@ export default function AdminWriteArticle() {
              </div>
 
              <div className="space-y-8">
-                <div className="aspect-video luxury-card border-dashed flex flex-col items-center justify-center group hover:border-brand-red-500 transition-colors cursor-pointer bg-[var(--card)]">
-                    <ImageIcon size={32} className="text-[var(--muted)] group-hover:text-brand-red-500 mb-2" />
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--muted)] group-hover:text-brand-red-500">Feature Image</span>
-                    <input type="text" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="Paste image URL..." className="mt-4 bg-transparent border border-[var(--border)] px-4 py-2 text-xs text-[var(--foreground)] text-center focus:outline-none focus:border-brand-red-500 w-4/5" />
+                <div className="aspect-video luxury-card border-dashed flex flex-col items-center justify-center group hover:border-brand-red-500 transition-colors cursor-pointer bg-[var(--card)] relative overflow-hidden">
+                    {displayImage ? (
+                      <>
+                        <img src={displayImage} alt="Preview" className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center transition-opacity">
+                          <Upload size={32} className="text-white mb-2" />
+                          <span className="text-white text-[10px] font-bold uppercase">Change Image</span>
+                        </div>
+                        <input type="file" accept="image/jpeg,image/png,image/webp" onChange={handleImageSelect} className="absolute inset-0 opacity-0 cursor-pointer" />
+                      </>
+                    ) : (
+                      <>
+                        <ImageIcon size={32} className="text-[var(--muted)] group-hover:text-brand-red-500 mb-2" />
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--muted)] group-hover:text-brand-red-500">Feature Image</span>
+                        <span className="text-[8px] text-[var(--muted)] mt-2">JPG, PNG, WebP — Max 10MB</span>
+                        <input type="file" accept="image/jpeg,image/png,image/webp" onChange={handleImageSelect} className="absolute inset-0 opacity-0 cursor-pointer" />
+                      </>
+                    )}
                 </div>
                 <div className="luxury-card p-8 space-y-6">
                    <div className="flex items-center gap-4 text-[var(--foreground)]">
@@ -94,7 +136,6 @@ export default function AdminWriteArticle() {
              </div>
           </section>
 
-          {/* Content Editor */}
           <section className="luxury-card p-6 sm:p-12 min-h-[600px] flex flex-col">
              <div className="flex gap-4 border-b border-[var(--border)] pb-6 mb-8 text-[var(--muted)]">
                 <button type="button" className="p-2 hover:text-brand-red-500 transition-colors" title="Bold"><Type size={18} /></button>

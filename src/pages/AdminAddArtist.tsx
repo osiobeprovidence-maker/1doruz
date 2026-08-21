@@ -29,7 +29,7 @@ import {
   Briefcase
 } from 'lucide-react';
 import { cn } from '../lib/utils';
-import { storageUrl, uploadFile } from '../lib/uploads';
+import { storageUrl, uploadFile, validateImageFile } from '../lib/uploads';
 
 interface Platform {
   id: string;
@@ -138,12 +138,16 @@ export default function AdminAddArtist() {
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'gallery' | 'video' | 'profile') => {
     const file = e.target.files?.[0];
     if (file) {
-      if (type === 'gallery') {
-        setGalleryFiles([...galleryFiles, file]);
-        setGallery([...gallery, URL.createObjectURL(file)]);
-      } else if (type === 'profile') {
+      if (type === 'profile') {
+        const validation = validateImageFile(file);
+        if (!validation.valid) { alert(validation.error); return; }
         setProfileFile(file);
         setImageUrl(URL.createObjectURL(file));
+      } else if (type === 'gallery') {
+        const validation = validateImageFile(file);
+        if (!validation.valid) { alert(validation.error); return; }
+        setGalleryFiles([...galleryFiles, file]);
+        setGallery([...gallery, URL.createObjectURL(file)]);
       } else if (type === 'video') {
         setVideos([...videos.filter(v => v.title || v.url), { title: file.name.split('.')[0], url: '' }]);
       }
@@ -245,16 +249,16 @@ export default function AdminAddArtist() {
                        <img src={imageUrl} alt="Profile" className="w-full h-full object-cover" />
                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                           <Upload size={20} className="text-white" />
-                          <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" accept="image/*" onChange={(e) => handleFileUpload(e, 'profile')} />
+                          <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" accept="image/jpeg,image/png,image/webp" onChange={(e) => handleFileUpload(e, 'profile')} />
                        </div>
                     </div>
                  ) : (
                     <>
                        <Upload size={24} className="text-[var(--muted)] group-hover:text-brand-red-500 mb-2" />
                        <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--muted)] group-hover:text-brand-red-500">Press Photo</span>
-                       <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" accept="image/*" onChange={(e) => handleFileUpload(e, 'profile')} />
-                    </>
-                 )}
+                        <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" accept="image/jpeg,image/png,image/webp" onChange={(e) => handleFileUpload(e, 'profile')} />
+                     </>
+                  )}
               </div>
               <div className="flex-1 space-y-6">
                 <div>
@@ -480,10 +484,15 @@ export default function AdminAddArtist() {
               <h3 className="text-xs font-bold uppercase tracking-[0.3em] text-[var(--foreground)]">05. Photo Gallery</h3>
               <label className="cursor-pointer text-[9px] font-bold uppercase tracking-[0.2em] text-brand-red-500 hover:text-[var(--foreground)] transition-colors flex items-center gap-2">
                 <Plus size={14} /> Add Image
-                <input type="file" className="hidden" accept="image/*" multiple onChange={(e) => {
+                <input type="file" className="hidden" accept="image/jpeg,image/png,image/webp" multiple onChange={(e) => {
                   const files = Array.from(e.target.files || []) as File[];
-                  setGalleryFiles([...galleryFiles, ...files]);
-                  setGallery([...gallery, ...files.map(f => URL.createObjectURL(f))]);
+                  const valid = files.filter(f => {
+                    const v = validateImageFile(f);
+                    if (!v.valid) alert(v.error);
+                    return v.valid;
+                  });
+                  setGalleryFiles([...galleryFiles, ...valid]);
+                  setGallery([...gallery, ...valid.map(f => URL.createObjectURL(f))]);
                   e.target.value = '';
                 }} />
               </label>
@@ -505,7 +514,7 @@ export default function AdminAddArtist() {
               <div className="aspect-square border-2 border-dashed border-[var(--border)] flex flex-col items-center justify-center text-[var(--muted)] hover:border-brand-red-500 hover:text-brand-red-500 transition-all cursor-pointer rounded-lg relative">
                 <Upload size={20} className="mb-2" />
                 <span className="text-[8px] font-bold uppercase tracking-widest">Drop Image</span>
-                <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" accept="image/*" onChange={(e) => handleFileUpload(e, 'gallery')} />
+                <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" accept="image/jpeg,image/png,image/webp" onChange={(e) => handleFileUpload(e, 'gallery')} />
               </div>
             </div>
           </section>
