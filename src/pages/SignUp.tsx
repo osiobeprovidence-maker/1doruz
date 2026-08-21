@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { motion } from 'motion/react';
-import { Mail, Lock, User, UserPlus, Chrome, ArrowRight, ShieldCheck, Eye, EyeOff } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { Mail, Lock, User, UserPlus, Chrome, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation } from 'convex/react';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
@@ -9,6 +9,7 @@ import { auth } from '../lib/firebase';
 import { DEFAULT_LOGO } from '../lib/brand';
 
 export default function SignUp() {
+  const [method, setMethod] = useState<'choose' | 'email'>('choose');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -28,7 +29,7 @@ export default function SignUp() {
     setIsSubmitting(true);
     
     try {
-      await createUser({ email, name: email.split('@')[0], role: 'user', emailVerified: false });
+      await createUser({ email, name: name || email.split('@')[0], role: 'user', emailVerified: false });
       await sendMagicLink({ email });
       localStorage.setItem('pendingMagicLinkEmail', email);
       setSuccess(true);
@@ -98,88 +99,122 @@ export default function SignUp() {
               </button>
             </div>
           ) : (
-            <>
-              <form onSubmit={handleSignUp} className="space-y-6">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--muted)] block">Full Name</label>
-                  <div className="relative">
-                    <User className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--muted)]" size={16} />
-                    <input 
-                      type="text"
-                      required
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder="John Doe"
-                      className="w-full border pl-12 pr-4 py-4 focus:border-brand-red-500 focus:outline-none transition-colors rounded-none text-sm"
-                      style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
-                    />
-                  </div>
-                </div>
+            <AnimatePresence mode="wait">
+              {method === 'choose' ? (
+                <motion.div
+                  key="choose"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="space-y-4"
+                >
+                  <button
+                    onClick={handleGoogle}
+                    disabled={isSubmitting}
+                    className="w-full flex items-center justify-center gap-3 px-4 py-5 border hover:border-brand-red-500 transition-colors text-xs font-bold uppercase tracking-widest disabled:opacity-50"
+                    style={{ borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                  >
+                    <Chrome size={18} /> Continue with Google
+                  </button>
 
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--muted)] block">Email Address</label>
-                  <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--muted)]" size={16} />
-                    <input 
-                      type="email"
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="name@example.com"
-                      className="w-full border pl-12 pr-4 py-4 focus:border-brand-red-500 focus:outline-none transition-colors rounded-none text-sm"
-                      style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
-                    />
+                  <div className="flex items-center gap-4 my-2">
+                    <div className="flex-1 h-[1px]" style={{ backgroundColor: 'var(--border)' }} />
+                    <span className="text-[9px] font-bold uppercase tracking-widest text-[var(--muted)]">or</span>
+                    <div className="flex-1 h-[1px]" style={{ backgroundColor: 'var(--border)' }} />
                   </div>
-                </div>
 
-                <div className="space-y-2">
-                  <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--foreground)] block">Password</label>
-                  <div className="relative">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--muted)]" size={16} />
-                    <input 
-                      type={showPassword ? 'text' : 'password'}
-                      required
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••"
-                      className="w-full border pl-12 pr-12 py-4 focus:border-brand-red-500 focus:outline-none transition-colors rounded-none text-sm"
-                      style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
+                  <button
+                    onClick={() => { setMethod('email'); setError(''); }}
+                    className="w-full flex items-center justify-center gap-3 px-4 py-5 bg-brand-red-500 text-black hover:bg-[var(--foreground)] transition-colors text-xs font-bold uppercase tracking-widest"
+                  >
+                    <Mail size={18} /> Continue with Email
+                  </button>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="email"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 20 }}
+                >
+                  <button
+                    onClick={() => { setMethod('choose'); setError(''); setName(''); setEmail(''); setPassword(''); }}
+                    className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--muted)] hover:text-brand-red-500 transition-colors mb-6"
+                  >
+                    <ArrowLeft size={14} /> Back
+                  </button>
+
+                  <form onSubmit={handleSignUp} className="space-y-6">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--muted)] block">Full Name</label>
+                      <div className="relative">
+                        <User className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--muted)]" size={16} />
+                        <input 
+                          type="text"
+                          required
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          placeholder="John Doe"
+                          className="w-full border pl-12 pr-4 py-4 focus:border-brand-red-500 focus:outline-none transition-colors rounded-none text-sm"
+                          style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--muted)] block">Email Address</label>
+                      <div className="relative">
+                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--muted)]" size={16} />
+                        <input 
+                          type="email"
+                          required
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          placeholder="name@example.com"
+                          className="w-full border pl-12 pr-4 py-4 focus:border-brand-red-500 focus:outline-none transition-colors rounded-none text-sm"
+                          style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--foreground)] block">Password</label>
+                      <div className="relative">
+                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--muted)]" size={16} />
+                        <input 
+                          type={showPassword ? 'text' : 'password'}
+                          required
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          placeholder="••••••••"
+                          className="w-full border pl-12 pr-12 py-4 focus:border-brand-red-500 focus:outline-none transition-colors rounded-none text-sm"
+                          style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-4 top-1/2 -translate-y-1/2 text-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
+                        >
+                          {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                        </button>
+                      </div>
+                    </div>
+
+                    {error && (
+                      <div className="p-4 bg-brand-red-500/10 border border-brand-red-500/20 rounded-lg">
+                        <p className="text-[10px] text-brand-red-500 font-bold uppercase tracking-widest">{error}</p>
+                      </div>
+                    )}
+                    <button 
+                      disabled={isSubmitting}
+                      className="luxury-button w-full bg-brand-red-500 text-black hover:bg-[var(--foreground)] disabled:opacity-50 flex items-center justify-center gap-2 group"
                     >
-                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                      {isSubmitting ? 'Creating Account...' : 'Sign Up'} <UserPlus size={18} />
                     </button>
-                  </div>
-                </div>
-
-                <button 
-                  disabled={isSubmitting}
-                  className="luxury-button w-full bg-brand-red-500 text-black hover:bg-[var(--foreground)] disabled:opacity-50 flex items-center justify-center gap-2 group"
-                >
-                  {isSubmitting ? 'Creating Account...' : 'Sign Up'} <UserPlus size={18} />
-                </button>
-              </form>
-
-              <div className="mt-8 flex items-center gap-4">
-                <div className="flex-1 h-[1px]" style={{ backgroundColor: 'var(--border)' }} />
-                <span className="text-[9px] font-bold uppercase tracking-widest text-[var(--muted)]">Or join with</span>
-                <div className="flex-1 h-[1px]" style={{ backgroundColor: 'var(--border)' }} />
-              </div>
-
-              <div className="mt-8 grid grid-cols-1 gap-4">
-                <button 
-                  onClick={handleGoogle}
-                  disabled={isSubmitting}
-                  className="flex items-center justify-center gap-3 px-4 py-4 border hover:border-brand-red-500 transition-colors text-xs font-bold uppercase tracking-widest disabled:opacity-50"
-                  style={{ borderColor: 'var(--border)', color: 'var(--foreground)' }}
-                >
-                  <Chrome size={18} /> Google
-                </button>
-              </div>
-            </>
+                  </form>
+                </motion.div>
+              )}
+            </AnimatePresence>
           )}
         </div>
 
