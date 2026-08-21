@@ -16,7 +16,8 @@ import {
   Image as ImageIcon
 } from 'lucide-react';
 import { cn } from '../lib/utils';
-import { storageUrl, uploadFile, validateImageFile } from '../lib/uploads';
+import { validateImageFile } from '../lib/uploads';
+import { useImageUpload } from '../hooks/useImageUpload';
 
 export default function AdminAddRelease() {
   const navigate = useNavigate();
@@ -45,7 +46,7 @@ export default function AdminAddRelease() {
   });
 
   const createRelease = useMutation(api.releases.create);
-  const generateUploadUrl = useMutation(api.uploads.generateUploadUrl);
+  const { upload } = useImageUpload();
   const artists = useQuery(api.artists.list) || [];
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   const callerId = user._id || user.id;
@@ -58,10 +59,8 @@ export default function AdminAddRelease() {
       let resolvedCoverArtStorageId: string | undefined;
 
       if (coverFile) {
-        const uploadUrl = await generateUploadUrl({ callerId });
-        const storageId = await uploadFile(coverFile, uploadUrl);
-        resolvedCoverArtStorageId = storageId;
-        resolvedCoverArtUrl = storageUrl(storageId);
+        resolvedCoverArtStorageId = await upload(coverFile);
+        resolvedCoverArtUrl = '';
       }
 
       await createRelease({

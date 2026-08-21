@@ -89,6 +89,7 @@ export default function ArtistProfile() {
       <div className="relative h-[60vh] min-h-[500px] w-full">
         <SafeImage
           src={artist.imageUrl}
+          storageId={artist.imageStorageId}
           alt={artist.name}
           className="h-full w-full object-cover"
         />
@@ -162,7 +163,7 @@ export default function ArtistProfile() {
               <div className="grid gap-8 sm:grid-cols-2">
                 {artistReleases.map(release => (
                   <div key={release._id} className="luxury-card flex gap-6 p-6">
-                    <SafeImage src={release.coverArtUrl} alt={release.title} className="h-32 w-32 rounded-lg object-cover" />
+                    <SafeImage src={release.coverArtUrl} storageId={release.coverArtStorageId} alt={release.title} className="h-32 w-32 rounded-lg object-cover" />
                     <div className="flex flex-col justify-center">
                       <h3 className="font-serif text-xl font-bold text-[var(--foreground)]">{release.title}</h3>
                       <p className="text-xs uppercase tracking-widest text-[var(--muted)] mt-1">{release.type} | {new Date(release.releaseDate).getFullYear()}</p>

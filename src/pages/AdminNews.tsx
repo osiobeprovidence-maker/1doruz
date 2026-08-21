@@ -40,7 +40,7 @@ export default function AdminNews() {
               className="luxury-card overflow-hidden grid lg:grid-cols-[400px_1fr] group"
             >
               <div className="h-64 lg:h-full relative overflow-hidden">
-                 <SafeImage src={article.imageUrl} alt="" className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                 <SafeImage src={article.imageUrl} storageId={(article as any).imageStorageId} alt="" className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-700" />
                 <div className="absolute top-6 left-6 flex gap-2">
                    <span className="bg-brand-red-500 text-black px-3 py-1 text-[9px] font-bold uppercase tracking-widest">Live</span>
                 </div>

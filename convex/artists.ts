@@ -29,7 +29,7 @@ export const create = mutation({
   args: {
     name: v.string(),
     bio: v.string(),
-    imageUrl: v.string(),
+    imageUrl: v.optional(v.string()),
     imageStorageId: v.optional(v.string()),
     genres: v.array(v.string()),
     socialLinks: v.object({

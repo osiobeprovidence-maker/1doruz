@@ -54,7 +54,7 @@ export default defineSchema({
     artistId: v.id("artists"),
     artistName: v.string(),
     releaseDate: v.string(),
-    coverArtUrl: v.string(),
+    coverArtUrl: v.optional(v.string()),
     coverArtStorageId: v.optional(v.string()),
     type: v.union(v.literal("Single"), v.literal("EP"), v.literal("Album")),
     streamingLinks: v.object({
@@ -114,7 +114,8 @@ export default defineSchema({
     title: v.string(),
     excerpt: v.string(),
     content: v.string(),
-    imageUrl: v.string(),
+    imageUrl: v.optional(v.string()),
+    imageStorageId: v.optional(v.string()),
     author: v.string(),
     publishedAt: v.string(),
   })

@@ -17,7 +17,8 @@ import {
   Upload
 } from 'lucide-react';
 import { cn } from '../lib/utils';
-import { storageUrl, uploadFile, validateImageFile } from '../lib/uploads';
+import { validateImageFile } from '../lib/uploads';
+import { useImageUpload } from '../hooks/useImageUpload';
 
 export default function AdminWriteArticle() {
   const navigate = useNavigate();
@@ -32,7 +33,7 @@ export default function AdminWriteArticle() {
   const [author, setAuthor] = useState('1DORUZ Media');
   const [publishedAt, setPublishedAt] = useState(new Date().toISOString().split('T')[0]);
   const createArticle = useMutation(api.news.create);
-  const generateUploadUrl = useMutation(api.uploads.generateUploadUrl);
+  const { upload } = useImageUpload();
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   const callerId = user._id || user.id;
 
@@ -50,17 +51,18 @@ export default function AdminWriteArticle() {
     setIsSaving(true);
     try {
       let finalImageUrl = imageUrl;
+      let imageStorageId: string | undefined;
       if (imageFile) {
-        const uploadUrl = await generateUploadUrl({ callerId });
-        const storageId = await uploadFile(imageFile, uploadUrl);
-        finalImageUrl = storageUrl(storageId);
+        const storageId = await upload(imageFile);
+        finalImageUrl = '';
+        imageStorageId = storageId;
       }
       if (!finalImageUrl) {
         alert('Please add a feature image.');
         setIsSaving(false);
         return;
       }
-      await createArticle({ title, excerpt, content, imageUrl: finalImageUrl, author, publishedAt });
+      await createArticle({ title, excerpt, content, imageUrl: finalImageUrl || '', imageStorageId, author, publishedAt });
       setSaveSuccess(true);
       setTimeout(() => {
         setSaveSuccess(false);

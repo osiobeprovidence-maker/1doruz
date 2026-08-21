@@ -25,9 +25,10 @@ export default function News() {
                className="grid gap-12 lg:grid-cols-2 group cursor-pointer"
              >
                <div className="relative h-96 overflow-hidden rounded-2xl">
-                  <SafeImage
-                    src={article.imageUrl}
-                    alt={article.title}
+                   <SafeImage
+                     src={article.imageUrl}
+                     storageId={(article as any).imageStorageId}
+                     alt={article.title}
                     className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
                  <div className="absolute top-6 left-6">

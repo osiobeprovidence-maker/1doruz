@@ -16,7 +16,8 @@ import {
   Sun
 } from 'lucide-react';
 import { cn } from '../lib/utils';
-import { storageUrl, uploadFile, validateImageFile } from '../lib/uploads';
+import { validateImageFile } from '../lib/uploads';
+import { useImageUpload } from '../hooks/useImageUpload';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import { DEFAULT_LOGO } from '../lib/brand';
@@ -34,12 +35,12 @@ export default function AdminSettings() {
   const [logoText, setLogoText] = useState('1DORUZ');
   const config = useQuery(api.config.get);
   const updateConfig = useMutation(api.config.update);
-  const generateUploadUrl = useMutation(api.uploads.generateUploadUrl);
+  const { upload } = useImageUpload();
   const saveLogo = useMutation(api.config.saveLogo);
   const clearLogo = useMutation(api.config.clearLogo);
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   const callerId = user._id || user.id;
-  const logoPreview = config?.logoUrl || (config?.logoStorageId ? storageUrl(config.logoStorageId) : null);
+  const logoPreview = config?.logoUrl || null;
 
   useEffect(() => {
     if (config) {
@@ -60,8 +61,7 @@ export default function AdminSettings() {
       return;
     }
     try {
-      const uploadUrl = await generateUploadUrl({ callerId });
-      const storageId = (await uploadFile(file, uploadUrl)) as any;
+      const storageId = await upload(file);
       await saveLogo({ callerId, storageId, baseUrl: import.meta.env.VITE_CONVEX_SITE_URL || import.meta.env.VITE_CONVEX_URL });
       e.target.value = '';
     } catch (err) {

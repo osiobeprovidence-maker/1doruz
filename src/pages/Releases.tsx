@@ -42,6 +42,7 @@ export default function Releases() {
                <div className="relative aspect-square overflow-hidden rounded-lg bg-[var(--background)] shadow-2xl">
                   <SafeImage
                     src={release.coverArtUrl}
+                    storageId={release.coverArtStorageId}
                     alt={release.title}
                     className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
                   />

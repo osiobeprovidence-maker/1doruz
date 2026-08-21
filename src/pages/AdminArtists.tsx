@@ -53,7 +53,7 @@ export default function AdminArtists() {
               className="luxury-card p-5 sm:p-8 flex flex-col md:flex-row items-center gap-6 sm:gap-8 group bg-[var(--card)]/50 backdrop-blur-sm"
             >
               <div className="h-28 w-28 sm:h-32 sm:w-32 flex-shrink-0 grayscale group-hover:grayscale-0 transition-all duration-500 overflow-hidden rounded-sm border border-[var(--border)]">
-                 <SafeImage src={artist.imageUrl} alt="" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                 <SafeImage src={artist.imageUrl} storageId={artist.imageStorageId} alt="" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
               </div>
               
               <div className="flex-1 text-center md:text-left">

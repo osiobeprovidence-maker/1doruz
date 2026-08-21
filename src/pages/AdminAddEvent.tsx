@@ -15,12 +15,13 @@ import {
   Info
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { storageUrl, uploadFile, validateImageFile } from '../lib/uploads';
+import { validateImageFile } from '../lib/uploads';
+import { useImageUpload } from '../hooks/useImageUpload';
 
 export default function AdminAddEvent() {
   const navigate = useNavigate();
   const createEvent = useMutation(api.events.create);
-  const generateUploadUrl = useMutation(api.uploads.generateUploadUrl);
+  const { upload } = useImageUpload();
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   const callerId = user._id || user.id;
   const [title, setTitle] = useState('');
@@ -41,10 +42,8 @@ export default function AdminAddEvent() {
     let resolvedImageUrl = imageUrl;
     let resolvedHeroImageStorageId: string | undefined;
     if (imageFile) {
-      const uploadUrl = await generateUploadUrl({ callerId });
-      const storageId = await uploadFile(imageFile, uploadUrl);
-      resolvedHeroImageStorageId = storageId;
-      resolvedImageUrl = storageUrl(storageId);
+      resolvedHeroImageStorageId = await upload(imageFile);
+      resolvedImageUrl = '';
     }
 
     await createEvent({

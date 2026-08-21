@@ -79,6 +79,7 @@ export default function UserProfile() {
                   {avatarUrl ? (
                     <SafeImage
                       src={avatarUrl}
+                      storageId={(currentUser as any)?.imageStorageId}
                       alt={displayName}
                       className="w-full h-full object-cover"
                       showPlaceholder

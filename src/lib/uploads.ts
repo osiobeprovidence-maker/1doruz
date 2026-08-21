@@ -1,13 +1,3 @@
-const CONVEX_SITE_URL = import.meta.env.VITE_CONVEX_SITE_URL;
-
-if (!CONVEX_SITE_URL) {
-  console.error('[1DORUZ] VITE_CONVEX_SITE_URL is not set. Image uploads will produce broken URLs.');
-}
-
-export function storageUrl(storageId: string): string {
-  return `${CONVEX_SITE_URL}/api/storage/${storageId}`;
-}
-
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10MB
 

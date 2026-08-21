@@ -29,7 +29,8 @@ import {
   Briefcase
 } from 'lucide-react';
 import { cn } from '../lib/utils';
-import { storageUrl, uploadFile, validateImageFile } from '../lib/uploads';
+import { validateImageFile } from '../lib/uploads';
+import { useImageUpload } from '../hooks/useImageUpload';
 
 interface Platform {
   id: string;
@@ -178,31 +179,20 @@ export default function AdminAddArtist() {
     setIsSaving(true);
 
     try {
-      let resolvedImageUrl = imageUrl;
       let resolvedImageStorageId: string | undefined;
       let resolvedGallery: string[] | undefined;
 
       if (profileFile) {
-        const uploadUrl = await generateUploadUrl({ callerId });
-        const storageId = await uploadFile(profileFile, uploadUrl);
-        resolvedImageStorageId = storageId;
-        resolvedImageUrl = storageUrl(storageId);
+        resolvedImageStorageId = await upload(profileFile);
       }
 
       if (galleryFiles.length > 0) {
-        const urls: string[] = [];
-        for (const galleryFile of galleryFiles) {
-          const uploadUrl = await generateUploadUrl({ callerId });
-          const storageId = await uploadFile(galleryFile, uploadUrl);
-          urls.push(storageUrl(storageId));
-        }
-        resolvedGallery = urls;
+        resolvedGallery = await uploadMultiple(galleryFiles);
       }
 
       await createArtist({
         name,
         bio,
-        imageUrl: resolvedImageUrl || 'https://images.unsplash.com/photo-1557672172-298e090bd0f1?auto=format&fit=crop&q=80&w=1200',
         imageStorageId: resolvedImageStorageId,
         genres,
         socialLinks,

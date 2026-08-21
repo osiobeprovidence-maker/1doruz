@@ -96,7 +96,7 @@ export default function AdminDashboard() {
                       <tr key={artist._id} className="group hover:opacity-90/[0.02] transition-colors">
                         <td className="px-6 py-5">
                           <Link to={`/artists/${artist._id}`} target="_blank" className="flex items-center gap-4 hover:opacity-80 transition-opacity">
-                            <SafeImage src={artist.imageUrl} alt="" className="h-12 w-12 grayscale group-hover:grayscale-0 transition-all object-cover" />
+                            <SafeImage src={artist.imageUrl} storageId={artist.imageStorageId} alt="" className="h-12 w-12 grayscale group-hover:grayscale-0 transition-all object-cover" />
                             <div>
                               <div className="font-bold text-[var(--foreground)] text-sm uppercase tracking-tight">{artist.name}</div>
                               <div className="text-[10px] text-[var(--muted)] uppercase tracking-widest">{artist.genres[0]}</div>
@@ -122,7 +122,7 @@ export default function AdminDashboard() {
                 {artists.slice(0, 4).map(artist => (
                   <div key={artist._id} className="luxury-card p-5 space-y-4 bg-[var(--card)]">
                     <Link to={`/artists/${artist._id}`} target="_blank" className="flex items-center gap-4 hover:opacity-80 transition-opacity">
-                      <SafeImage src={artist.imageUrl} alt="" className="h-16 w-16 grayscale transition-all object-cover rounded-sm" />
+                      <SafeImage src={artist.imageUrl} storageId={artist.imageStorageId} alt="" className="h-16 w-16 grayscale transition-all object-cover rounded-sm" />
                       <div>
                         <h4 className="font-bold text-[var(--foreground)] text-[16px] uppercase tracking-tight">{artist.name}</h4>
                         <p className="text-[var(--muted)] text-[14px] uppercase tracking-widest">{artist.genres[0]}</p>
