@@ -20,6 +20,7 @@ import { storageUrl, uploadFile, validateImageFile } from '../lib/uploads';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import { DEFAULT_LOGO } from '../lib/brand';
+import SafeImage from '../components/SafeImage';
 
 export default function AdminSettings() {
   const [activeSection, setActiveSection] = useState('cosmetic');
@@ -161,7 +162,7 @@ export default function AdminSettings() {
                         <label className="text-[10px] font-bold uppercase tracking-widest text-brand-red-500">Platform Logo</label>
                         <div className="flex items-center gap-6">
                            <div className="w-20 h-20 bg-[var(--background)] border border-[var(--border)] overflow-hidden rounded-lg flex items-center justify-center group relative">
-                               <img src={logoPreview || DEFAULT_LOGO} alt="Platform Logo" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" />
+                                <SafeImage src={logoPreview || DEFAULT_LOGO} storageId={config?.logoStorageId} alt="Platform Logo" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" />
                               <label className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
                                  <Monitor size={16} className="text-white" />
                                  <input type="file" className="hidden" accept="image/jpeg,image/png,image/webp" onChange={handleLogoUpload} />

@@ -16,6 +16,7 @@ import type * as demos from "../demos.js";
 import type * as emails from "../emails.js";
 import type * as events from "../events.js";
 import type * as gallery from "../gallery.js";
+import type * as http from "../http.js";
 import type * as news from "../news.js";
 import type * as releases from "../releases.js";
 import type * as team from "../team.js";
@@ -37,6 +38,7 @@ declare const fullApi: ApiFromModules<{
   emails: typeof emails;
   events: typeof events;
   gallery: typeof gallery;
+  http: typeof http;
   news: typeof news;
   releases: typeof releases;
   team: typeof team;

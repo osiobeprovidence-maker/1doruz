@@ -1,7 +1,10 @@
-import { useState, useEffect, useCallback, type SyntheticEvent } from 'react';
+import { useState, useEffect, useCallback, useMemo, type SyntheticEvent } from 'react';
+import { useQuery } from 'convex/react';
+import { api } from '../../convex/_generated/api';
 
 interface SafeImageProps {
   src?: string | null;
+  storageId?: string | null;
   alt?: string;
   className?: string;
   fallbackSrc?: string;
@@ -11,8 +14,15 @@ interface SafeImageProps {
   [key: string]: any;
 }
 
+function extractStorageId(url: string | null | undefined): string | null {
+  if (!url) return null;
+  const match = url.match(/\/api\/storage\/([a-zA-Z0-9]+)/);
+  return match ? match[1] : null;
+}
+
 export default function SafeImage({
   src,
+  storageId: storageIdProp,
   alt,
   fallbackSrc,
   showPlaceholder = false,
@@ -21,13 +31,25 @@ export default function SafeImage({
   onError,
   ...rest
 }: SafeImageProps) {
+  const resolvedId = useMemo(
+    () => storageIdProp || extractStorageId(src),
+    [storageIdProp, src]
+  );
+
+  const signedUrl = useQuery(
+    api.uploads.getUrl,
+    resolvedId ? { storageId: resolvedId } : 'skip'
+  );
+
+  const effectiveSrc = resolvedId && signedUrl ? signedUrl : src || '';
+
   const [status, setStatus] = useState<'idle' | 'loaded' | 'error'>('idle');
-  const [displaySrc, setDisplaySrc] = useState(src || '');
+  const [displaySrc, setDisplaySrc] = useState(effectiveSrc);
 
   useEffect(() => {
     setStatus('idle');
-    setDisplaySrc(src || '');
-  }, [src]);
+    setDisplaySrc(effectiveSrc);
+  }, [effectiveSrc]);
 
   const handleError = useCallback((e: SyntheticEvent<HTMLImageElement>) => {
     setStatus('error');
