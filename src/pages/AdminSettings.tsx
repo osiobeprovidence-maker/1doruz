@@ -59,7 +59,7 @@ export default function AdminSettings() {
     try {
       const uploadUrl = await generateUploadUrl({ callerId });
       const storageId = (await uploadFile(file, uploadUrl)) as any;
-      await saveLogo({ callerId, storageId, baseUrl: import.meta.env.VITE_CONVEX_URL });
+      await saveLogo({ callerId, storageId, baseUrl: import.meta.env.VITE_CONVEX_SITE_URL || import.meta.env.VITE_CONVEX_URL });
       e.target.value = '';
     } catch (err) {
       console.error('Logo upload failed:', err);

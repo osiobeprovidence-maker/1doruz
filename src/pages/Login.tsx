@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Mail, Lock, LogIn, Chrome, ArrowRight, ShieldCheck, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, LogIn, Chrome, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation } from 'convex/react';
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
@@ -149,20 +149,7 @@ export default function Login() {
             </button>
           </div>
 
-          <div className="mt-10 p-4 bg-brand-red-500/5 border border-brand-red-500/10 rounded-lg">
-            <div className="flex items-center gap-3 text-brand-red-500 mb-2">
-              <ShieldCheck size={14} />
-              <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Demo Access</span>
-            </div>
-            <div className="space-y-2">
-              <p className="text-[9px] text-[var(--muted)] leading-relaxed uppercase tracking-widest border-b border-brand-red-500/10 pb-1">
-                Admin: <span className="text-[var(--foreground)] font-mono">admin@1doruz.com</span> | <span className="text-[var(--foreground)] font-mono">admin123</span>
-              </p>
-              <p className="text-[9px] text-[var(--muted)] leading-relaxed uppercase tracking-widest">
-                Artist: <span className="text-[var(--foreground)] font-mono">artist@1doruz.com</span> | <span className="text-[var(--foreground)] font-mono">artist123</span>
-              </p>
-            </div>
-          </div>
+
         </div>
 
         <div className="mt-8 text-center">

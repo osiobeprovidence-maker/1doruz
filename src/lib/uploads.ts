@@ -1,7 +1,7 @@
-const CONVEX_URL = import.meta.env.VITE_CONVEX_URL!;
+const CONVEX_SITE_URL = import.meta.env.VITE_CONVEX_SITE_URL || import.meta.env.VITE_CONVEX_URL!;
 
 export function storageUrl(storageId: string): string {
-  return `${CONVEX_URL}/api/storage/${storageId}`;
+  return `${CONVEX_SITE_URL}/api/storage/${storageId}`;
 }
 
 export async function uploadFile(file: File, uploadUrl: string): Promise<string> {
