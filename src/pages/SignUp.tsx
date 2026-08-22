@@ -26,26 +26,33 @@ export default function SignUp() {
   const customLogo = config?.logoUrl || null;
 
   useEffect(() => {
-    getRedirectResult(auth).then(async (result) => {
-      if (result?.user) {
-        setIsSubmitting(true);
-        try {
+    const handleRedirect = async () => {
+      try {
+        const result = await getRedirectResult(auth);
+        console.log('[Auth] Redirect result:', result ? 'received' : 'null');
+        if (result?.user) {
           const fbUser = result.user;
+          console.log('[Auth] Firebase user:', fbUser.email, fbUser.uid);
+          setIsSubmitting(true);
           const userResult = await upsertUser({
             email: fbUser.email ?? '',
             name: fbUser.displayName ?? undefined,
             imageUrl: fbUser.photoURL ?? undefined,
             firebaseUid: fbUser.uid,
           });
+          console.log('[Auth] Upsert result:', userResult);
           localStorage.setItem('user', JSON.stringify({ id: userResult.id, email: userResult.email, role: userResult.role, name: userResult.name }));
           localStorage.setItem('isAdmin', userResult.role === 'admin' ? 'true' : 'false');
+          console.log('[Auth] Navigating to:', userResult.role === 'admin' ? '/admin' : '/profile');
           navigate(userResult.role === 'admin' ? '/admin' : '/profile');
-        } catch (err) {
-          setError('Google sign-in failed. Please try again.');
-          setIsSubmitting(false);
         }
+      } catch (err) {
+        console.error('[Auth] Redirect result error:', err);
+        setError('Google sign-in failed. Please try again.');
+        setIsSubmitting(false);
       }
-    }).catch(() => {});
+    };
+    handleRedirect();
   }, []);
 
   const handleSignUp = async (e: React.FormEvent) => {
