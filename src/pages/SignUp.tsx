@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Mail, Lock, User, UserPlus, Chrome, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation } from 'convex/react';
-import { GoogleAuthProvider, signInWithRedirect, getRedirectResult } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithRedirect, getRedirectResult, onAuthStateChanged } from 'firebase/auth';
 import { api } from '../../convex/_generated/api';
 import { auth } from '../lib/firebase';
 import { DEFAULT_LOGO } from '../lib/brand';
@@ -26,33 +26,48 @@ export default function SignUp() {
   const customLogo = config?.logoUrl || null;
 
   useEffect(() => {
-    const handleRedirect = async () => {
+    let processed = false;
+    const processUser = async (fbUser: any) => {
+      if (processed) return;
+      processed = true;
+      console.log('[Auth] Processing Firebase user:', fbUser.email, fbUser.uid);
+      setIsSubmitting(true);
       try {
-        const result = await getRedirectResult(auth);
-        console.log('[Auth] Redirect result:', result ? 'received' : 'null');
-        if (result?.user) {
-          const fbUser = result.user;
-          console.log('[Auth] Firebase user:', fbUser.email, fbUser.uid);
-          setIsSubmitting(true);
-          const userResult = await upsertUser({
-            email: fbUser.email ?? '',
-            name: fbUser.displayName ?? undefined,
-            imageUrl: fbUser.photoURL ?? undefined,
-            firebaseUid: fbUser.uid,
-          });
-          console.log('[Auth] Upsert result:', userResult);
-          localStorage.setItem('user', JSON.stringify({ id: userResult.id, email: userResult.email, role: userResult.role, name: userResult.name }));
-          localStorage.setItem('isAdmin', userResult.role === 'admin' ? 'true' : 'false');
-          console.log('[Auth] Navigating to:', userResult.role === 'admin' ? '/admin' : '/profile');
-          navigate(userResult.role === 'admin' ? '/admin' : '/profile');
-        }
+        const userResult = await upsertUser({
+          email: fbUser.email ?? '',
+          name: fbUser.displayName ?? undefined,
+          imageUrl: fbUser.photoURL ?? undefined,
+          firebaseUid: fbUser.uid,
+        });
+        console.log('[Auth] Upsert result:', userResult);
+        localStorage.setItem('user', JSON.stringify({ id: userResult.id, email: userResult.email, role: userResult.role, name: userResult.name }));
+        localStorage.setItem('isAdmin', userResult.role === 'admin' ? 'true' : 'false');
+        console.log('[Auth] Navigating to:', userResult.role === 'admin' ? '/admin' : '/profile');
+        navigate(userResult.role === 'admin' ? '/admin' : '/profile');
       } catch (err) {
-        console.error('[Auth] Redirect result error:', err);
+        console.error('[Auth] Failed to process user:', err);
         setError('Google sign-in failed. Please try again.');
         setIsSubmitting(false);
       }
     };
-    handleRedirect();
+
+    getRedirectResult(auth).then((result) => {
+      console.log('[Auth] Redirect result:', result ? 'received' : 'null');
+      if (result?.user) {
+        processUser(result.user);
+      }
+    }).catch((err) => {
+      console.error('[Auth] getRedirectResult error:', err);
+    });
+
+    const unsubscribe = onAuthStateChanged(auth, (fbUser) => {
+      console.log('[Auth] onAuthStateChanged:', fbUser ? fbUser.email : 'null');
+      if (fbUser && !processed) {
+        processUser(fbUser);
+      }
+    });
+
+    return () => unsubscribe();
   }, []);
 
   const handleSignUp = async (e: React.FormEvent) => {
